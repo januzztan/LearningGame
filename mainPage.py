@@ -25,34 +25,36 @@ def toggle_music():
 # Functions to open different pages
 def open_game_page():
     hide_main_page()
-    game_page.pack()
+    game_page.pack(fill="both", expand=True)
 
 def open_instruction_page():
     hide_main_page()
-    instruction_page.pack()
+    instruction_page.pack(fill="both", expand=True)
 
 def open_high_score_page():
     hide_main_page()
-    high_score_page.pack()
+    high_score_page.pack(fill="both", expand=True)
 
 def hide_main_page():
-    button_frame.pack_forget()  # Use button_frame instead of main_frame
+    button_frame.place_forget()  # Hide the button frame using place_forget
+    music_toggle_button.place_forget()  # Hide the music button when navigating to another page
 
 def back_to_main_page():
-    global music_playing  # Declare global here at the start of the function
+    global music_playing
     
     # Hide all other pages
     game_page.pack_forget()
     instruction_page.pack_forget()
     high_score_page.pack_forget()
     
-    # Repack the main button frame to show the buttons
-    button_frame.pack()
+    # Repack the main button frame to show the buttons and music button
+    button_frame.place(relx=0.5, rely=1.0, anchor="s")  # Position at the bottom center
+    music_toggle_button.place(relx=0.98, rely=0.02, anchor="ne")  # Position the mute button to the top-right corner
     
     # Ensure the music is playing and the button shows the correct state
     if not music_playing:
-        pygame.mixer.music.unpause()  # Restart music if it was paused
-        music_toggle_button.config(image=volume_play_image)  # Set button to show volume play
+        pygame.mixer.music.unpause()
+        music_toggle_button.config(image=volume_play_image)
     
     # Reset the music playing state to the same as when the game starts
     music_playing = True
@@ -61,6 +63,8 @@ def back_to_main_page():
 root = tk.Tk()
 root.title("Main Page")
 root.geometry("1920x1080")
+root.resizable(True, True)  # Allow resizing
+root.configure(bg="black")  # Set background color to black
 
 # Load the images for the buttons
 play_btn_image = PhotoImage(file="Assets/Start_btn.png")
@@ -70,41 +74,41 @@ volume_play_image = PhotoImage(file="Assets/Volume_play.png")           # Image 
 volume_mute_image = PhotoImage(file="Assets/Volume_mute.png")           # Image for volume mute
 
 # Music toggle button on the top right corner with image
-music_toggle_button = tk.Button(root, image=volume_play_image, command=toggle_music, borderwidth=0)
-music_toggle_button.place(x=1180, y=10)  # Positioning it on the top right corner
+music_toggle_button = tk.Button(root, image=volume_play_image, command=toggle_music, borderwidth=0, bg="black")
+music_toggle_button.place(relx=0.98, rely=0.02, anchor="ne")  # Position the button in the top-right corner
 
-# Main frame at the bottom to hold buttons
-button_frame = tk.Frame(root)
-button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=20)  # Placing at the bottom of the window and stretching horizontally
+# Main frame to hold buttons
+button_frame = tk.Frame(root, bg="black")  # Set background color to black
+button_frame.place(relx=0.5, rely=1.0, anchor="s")  # Position the frame at the bottom center
 
 # Buttons on the main page inside the frame
-game_button = tk.Button(button_frame, image=play_btn_image, command=open_game_page, borderwidth=0)
-instruction_button = tk.Button(button_frame, image=instruction_btn_image, command=open_instruction_page, borderwidth=0)
-high_score_button = tk.Button(button_frame, image=high_score_btn_image, command=open_high_score_page, borderwidth=0)
+game_button = tk.Button(button_frame, image=play_btn_image, command=open_game_page, borderwidth=0, bg="black")
+instruction_button = tk.Button(button_frame, image=instruction_btn_image, command=open_instruction_page, borderwidth=0, bg="black")
+high_score_button = tk.Button(button_frame, image=high_score_btn_image, command=open_high_score_page, borderwidth=0, bg="black")
 
 # Align the buttons in a row inside the frame
-game_button.pack(side=tk.LEFT, padx=40, pady=160)
-instruction_button.pack(side=tk.LEFT, padx=40, pady=160)
-high_score_button.pack(side=tk.LEFT, padx=40, pady=160)
+game_button.pack(side=tk.LEFT, padx=40, pady=120)
+instruction_button.pack(side=tk.LEFT, padx=40, pady=120)
+high_score_button.pack(side=tk.LEFT, padx=40, pady=120)
 
 # Game Page
-game_page = tk.Frame(root)
-tk.Label(game_page, text="Game Page").pack()
+game_page = tk.Frame(root, bg="black")  # Set background color to black
+tk.Label(game_page, text="Game Page", bg="black", fg="white").pack()  # Set label text color to white for visibility
 
 # Back button for the game page
-back_button_game = tk.Button(game_page, text="Back to Main", command=back_to_main_page)
+back_button_game = tk.Button(game_page, text="Back to Main", command=back_to_main_page, bg="black", fg="white")
 back_button_game.pack()
 
 # Instruction Page
-instruction_page = tk.Frame(root)
-tk.Label(instruction_page, text="Instruction Page").pack()
-back_button_instruction = tk.Button(instruction_page, text="Back to Main", command=back_to_main_page)
+instruction_page = tk.Frame(root, bg="black")  # Set background color to black
+tk.Label(instruction_page, text="Instruction Page", bg="black", fg="white").pack()  # Set label text color to white for visibility
+back_button_instruction = tk.Button(instruction_page, text="Back to Main", command=back_to_main_page, bg="black", fg="white")
 back_button_instruction.pack()
 
 # High Score Page
-high_score_page = tk.Frame(root)
-tk.Label(high_score_page, text="High Score Page").pack()
-back_button_high_score = tk.Button(high_score_page, text="Back to Main", command=back_to_main_page)
+high_score_page = tk.Frame(root, bg="black")  # Set background color to black
+tk.Label(high_score_page, text="High Score Page", bg="black", fg="white").pack()  # Set label text color to white for visibility
+back_button_high_score = tk.Button(high_score_page, text="Back to Main", command=back_to_main_page, bg="black", fg="white")
 back_button_high_score.pack()
 
 # Start the main loop
