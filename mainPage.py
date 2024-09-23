@@ -2,13 +2,16 @@ import tkinter as tk
 from tkinter import PhotoImage
 import pygame
 
-# Initialize pygame mixer for music
+# Initialize pygame mixer for music and sound effects
 pygame.mixer.init()
-pygame.mixer.music.set_volume(0.7)  # Music is played at 70%
+pygame.mixer.music.set_volume(0.15)  # Music is played at 15%
 
-# Load and play music as soon as the program starts
+# Load and play background music as soon as the program starts
 pygame.mixer.music.load("Assets/BGM.mp3")  # Ensure the file path is correct
 pygame.mixer.music.play(-1)  # Play music in a loop
+
+# Load the mouse click sound
+click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")
 
 # Function to play or stop the music
 music_playing = True
@@ -22,24 +25,33 @@ def toggle_music():
         music_toggle_button.config(image=volume_play_image)
     music_playing = not music_playing
 
+# Function to play the click sound
+def play_click_sound():
+    click_sound.play()
+
 # Functions to open different pages
 def open_game_page():
+    play_click_sound()  # Play click sound
     hide_main_page()
     game_page.pack(fill="both", expand=True)
 
 def open_instruction_page():
+    play_click_sound()  # Play click sound
     hide_main_page()
     instruction_page.pack(fill="both", expand=True)
 
 def open_high_score_page():
+    play_click_sound()  # Play click sound
     hide_main_page()
     high_score_page.pack(fill="both", expand=True)
 
 def hide_main_page():
     button_frame.place_forget()  # Hide the button frame using place_forget
     music_toggle_button.place_forget()  # Hide the music button when navigating to another page
+    title_image_label.pack_forget()  # Hide the title image when navigating to another page
 
 def back_to_main_page():
+    play_click_sound()  # Play click sound
     global music_playing
     
     # Hide all other pages
@@ -48,6 +60,7 @@ def back_to_main_page():
     high_score_page.pack_forget()
     
     # Repack the main button frame to show the buttons and music button
+    title_image_label.pack(pady=100)  # Show the image when returning to the main page
     button_frame.place(relx=0.5, rely=1.0, anchor="s")  # Position at the bottom center
     music_toggle_button.place(relx=0.98, rely=0.02, anchor="ne")  # Position the mute button to the top-right corner
     
@@ -66,15 +79,20 @@ root.geometry("1920x1080")
 root.resizable(True, True)  # Allow resizing
 root.configure(bg="black")  # Set background color to black
 
-# Load the images for the buttons
+# Load the images for the buttons and title image
 play_btn_image = PhotoImage(file="Assets/Start_btn.png")
 instruction_btn_image = PhotoImage(file="Assets/Instruction_btn.png")  # Load instruction button image
 high_score_btn_image = PhotoImage(file="Assets/HighScore_btn.png")     # Load high score button image
 volume_play_image = PhotoImage(file="Assets/Volume_play.png")           # Image for volume play
 volume_mute_image = PhotoImage(file="Assets/Volume_mute.png")           # Image for volume mute
+title_image = PhotoImage(file="Assets/Title.png")                      # Load the title image
+
+# Title image label (centered)
+title_image_label = tk.Label(root, image=title_image, bg="black")
+title_image_label.pack(pady=150)  # Add padding to position it in the middle
 
 # Music toggle button on the top right corner with image
-music_toggle_button = tk.Button(root, image=volume_play_image, command=toggle_music, borderwidth=0, bg="black")
+music_toggle_button = tk.Button(root, image=volume_play_image, command=lambda: [play_click_sound(), toggle_music()], borderwidth=0, bg="black")
 music_toggle_button.place(relx=0.98, rely=0.02, anchor="ne")  # Position the button in the top-right corner
 
 # Main frame to hold buttons
@@ -87,9 +105,9 @@ instruction_button = tk.Button(button_frame, image=instruction_btn_image, comman
 high_score_button = tk.Button(button_frame, image=high_score_btn_image, command=open_high_score_page, borderwidth=0, bg="black")
 
 # Align the buttons in a row inside the frame
-game_button.pack(side=tk.LEFT, padx=40, pady=120)
-instruction_button.pack(side=tk.LEFT, padx=40, pady=120)
-high_score_button.pack(side=tk.LEFT, padx=40, pady=120)
+game_button.pack(side=tk.LEFT, padx=40, pady=140)
+instruction_button.pack(side=tk.LEFT, padx=40, pady=140)
+high_score_button.pack(side=tk.LEFT, padx=40, pady=140)
 
 # Game Page
 game_page = tk.Frame(root, bg="black")  # Set background color to black
