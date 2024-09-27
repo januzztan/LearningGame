@@ -21,6 +21,7 @@ class MainApplication:
         # Initialize Pygame mixer for sounds
         pygame.mixer.init()
         pygame.mixer.music.load("Assets/BGM.mp3")
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(-1)
 
         self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")  # Load the click sound
