@@ -54,10 +54,6 @@ class GamePage(tk.Frame):
         # Bind the Return key to check the answer
         self.bind_all('<Return>', lambda event: self.check_answer())
 
-        # Optional: Add a Start button to initiate the game
-        self.start_button = tk.Button(self, text="Start", command=self.start_game, font=("Helvetica", 24))
-        self.start_button.pack(pady=20)
-
     def start_game(self):
         print("Game started.")  # Debugging statement
         # Reset the game state before starting a new game
