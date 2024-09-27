@@ -11,7 +11,14 @@ class MainMenu(tk.Frame):
         title_image = PhotoImage(file="Assets/Title.png")
         title_label = tk.Label(self, image=title_image, bg="black")
         title_label.image = title_image  # Keep a reference to avoid garbage collection
-        title_label.pack(pady=150)
+        title_label.pack(pady=60)
+
+        # Close button (Make it more visible and ensure correct placement)
+        close_button = tk.Button(self, text="X", command=self.confirm_close, bg="red", fg="white", font=("Arial", 14), borderwidth=0)
+        close_button.place(x=10, y=10)  # Fixed coordinates to ensure visibility at the top-left corner
+
+        # Load close prompt sound
+        self.close_sound = pygame.mixer.Sound("Assets/Close_promt.mp3")  # Close prompt sound
 
         # Music toggle button
         self.music_toggle_button = tk.Button(self, image=app.volume_play_image, command=app.play_with_sound(self.toggle_music), borderwidth=0, bg="black")
@@ -43,3 +50,10 @@ class MainMenu(tk.Frame):
     def show_high_scores(self):
         # Placeholder for high score functionality
         messagebox.showinfo("High Scores", "High scores feature coming soon!")
+
+    def confirm_close(self):
+        """Play sound and show a confirmation dialog when the user clicks the close button."""
+        self.close_sound.play()  # Play close prompt sound
+        response = messagebox.askyesno("Quit Game", "Are you sure you want to close the game?")
+        if response == 1:  # If the user clicks "Yes"
+            self.app.root.quit()  # This will close the game
