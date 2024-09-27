@@ -12,7 +12,7 @@ def save_name_and_score(score, back_to_main_menu):
     def save_score():
         name = name_entry.get()[:3]  # Take only the first 3 characters
         with open("Assets\HighScoresList\saved_scores.txt", "a") as file:
-            file.write(f"{name}: {score}\n")
+            file.write(f"{name} {score}\n")
         save_window.destroy()  # Close the save window after saving
         back_to_main_menu()  # Call the callback to go back to the main menu
 
