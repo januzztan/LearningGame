@@ -107,6 +107,12 @@ game_page = tk.Frame(root, bg="lightgray")
 instruction_page = tk.Frame(root, bg="lightgray")
 high_score_page = tk.Frame(root, bg="lightgray")
 
+# Create a frame for the high score list
+high_score_frame = tk.Frame(high_score_page, bg="lightgray")
+high_score_frame.pack(pady=20)  # Add some padding at the top
+
+
+
 #Game
 
 # Function to load words from a file for the game
@@ -400,6 +406,31 @@ class LearningGame:
     def remove_overlay(self):
         self.overlay_frame.destroy()
         self.overlay_displayed = False
+
+# Dummy high scores
+high_scores = [
+    ("ABC", 150),
+    ("DEF", 120),
+    ("GHI", 100),
+    ("JKL", 80),
+    ("MNO", 50)
+]
+
+# Generate dummy high scores
+dummy_scores = [(f"Player{i:03}", random.randint(50, 100)) for i in range(1, 6)]
+
+# Create a label for each high score and pack them into the frame
+for name, score in high_scores:
+    score_label = tk.Label(high_score_frame, text=f"{name}      {score}", font=("Helvetica", 24), bg="lightgray")
+    score_label.pack(pady=10)  # Add some vertical padding
+
+# Center the high score frame
+high_score_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+# Back button to return to main menu
+back_button = tk.Button(high_score_page, text="Back", command=back_to_main_page, font=("Helvetica", 24), bg="lightgray")
+back_button.pack(side=tk.BOTTOM, pady=(20, 30))  # Add some padding at the bottom
+
 
 # Initialize the LearningGame instance
 app = LearningGame(root)
