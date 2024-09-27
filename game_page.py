@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import pygame
+import save_scores
 
 class GamePage(tk.Frame):
     def __init__(self, app, back_to_main_page_callback):
@@ -138,7 +139,40 @@ class GamePage(tk.Frame):
     def incorrect_response(self):
         self.play_sound('incorrect')
         self.flash_red_cross()
-        self.after(1000, self.go_to_main_menu)  # Use self.after instead of self.app.root.after
+
+        # Show Game Over overlay before redirecting
+        self.after(1000, self.show_game_over_overlay)
+
+    def show_game_over_overlay(self):
+        # Stop the global background music
+        pygame.mixer.music.pause()  # Pause the background music
+        
+        # Play "game over" sound
+        self.play_sound('game_over')  # Assuming you have a 'game_over.mp3' file
+        
+        # Create a "Game Over" overlay
+        self.overlay_frame = tk.Frame(self, bg="black")
+        self.overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Cover the whole game page
+        self.overlay_frame.tkraise()
+
+        # Display "Game Over" text
+        game_over_label = tk.Label(self.overlay_frame, text="Game Over", font=("Helvetica", 48), fg="red", bg="black")
+        game_over_label.pack(pady=30)
+
+        # Delay before redirecting to save game state or exit
+        self.after(2000, self.redirect_to_save_file)  # Wait 2 seconds before redirect
+
+
+    def play_sound(self, result):
+        pygame.mixer.Sound("Assets/incorrect.mp3").play()
+
+    def redirect_to_save_file(self):
+        # Resume the global background music
+        pygame.mixer.music.unpause()  # Resume the paused background music
+
+        # Call the save score method from save_scores.py
+        self.after(2000, lambda: save_scores.save_name_and_score(self.points, self.back_to_main_page))
+
     
     def go_to_main_menu(self):
         self.back_to_main_page()
