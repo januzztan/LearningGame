@@ -23,6 +23,8 @@ class MainApplication:
         pygame.mixer.music.load("Assets/BGM.mp3")
         pygame.mixer.music.play(-1)
 
+        self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")  # Load the click sound
+
         # Create the main menu page
         self.main_menu_page = MainMenu(self)
 
@@ -54,6 +56,13 @@ class MainApplication:
         self.game_page.pack_forget()
         self.instruction_page.pack_forget()
         self.main_menu_page.pack(fill="both", expand=True)
+
+    # Function to play click sound and execute command
+    def play_with_sound(self, command):
+        def wrapper():
+            self.click_sound.play()  # Play click sound
+            command()  # Execute the actual command
+        return wrapper
 
 if __name__ == "__main__":
     root = tk.Tk()

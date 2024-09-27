@@ -20,6 +20,10 @@ class GamePage(tk.Frame):
         self.correct_answer = None
         self.game_paused = False
         self.overlay_displayed = False
+
+         # Load click sound
+        pygame.mixer.init()
+        self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")  # Ensure correct path to the click sound file
         
         self.word_list = load_words()
 
@@ -32,7 +36,7 @@ class GamePage(tk.Frame):
         self.entry = tk.Entry(self, font=("Helvetica", 30), width=20)
         self.entry.pack(pady=20)
         
-        self.submit_button = tk.Button(self, text="Submit", command=self.check_answer, font=("Helvetica", 24))
+        self.submit_button = tk.Button(self, text="Submit", command=app.play_with_sound(self.check_answer), font=("Helvetica", 24))
         self.submit_button.pack(pady=20)
         
         self.points_label = tk.Label(self, text=f"Points: {self.points}", font=("Helvetica", 30), bg="lightgray")
@@ -48,14 +52,13 @@ class GamePage(tk.Frame):
         self.tick_label.grid(row=0, column=0)
 
         # Add Pause/Unpause button
-        self.pause_button = tk.Button(self, text="Pause", command=self.toggle_pause, font=("Helvetica", 24))
+        self.pause_button = tk.Button(self, text="Pause", command=app.play_with_sound(self.toggle_pause), font=("Helvetica", 24))
         self.pause_button.place(relx=0.98, rely=0.02, anchor="ne")  # Top-right corner
 
         # Bind the Return key to check the answer
         self.bind_all('<Return>', lambda event: self.check_answer())
 
     def start_game(self):
-        print("Game started.")  # Debugging statement
         # Reset the game state before starting a new game
         self.reset_game_state()
         self.points = 0
@@ -78,7 +81,6 @@ class GamePage(tk.Frame):
 
     def ask_question(self):
         if not self.game_paused:
-            print("Asking a new question...")  # Debugging statement
             self.entry.delete(0, tk.END)
             self.cross_label.config(text="")
             self.tick_label.config(text="")
@@ -101,41 +103,32 @@ class GamePage(tk.Frame):
         else:
             self.correct_answer = a - b
         question_text = f"What is {a} {op} {b}?"
-        print(f"Generated math question: {question_text}")  # Debugging statement
         self.label.config(text=question_text)
 
     def generate_random_word_problem(self):
         word = random.choice(self.word_list)
         self.correct_answer = word
         question_text = f"Type the word: {word}"
-        print(f"Generated word question: {question_text}")  # Debugging statement
         self.label.config(text=question_text)
 
     def check_answer(self):
         if not self.game_paused:
             user_input = self.entry.get()
-            print(f"User input: {user_input}")  # Debugging statement
             if self.question_type == 'math':
                 try:
                     if int(user_input) == self.correct_answer:
-                        print("Correct answer for math question.")  # Debugging statement
                         self.correct_response()
                     else:
-                        print("Incorrect answer for math question.")  # Debugging statement
                         self.incorrect_response()
                 except ValueError:
-                    print("Invalid input for math question.")  # Debugging statement
                     self.incorrect_response()
             else:
                 if user_input.lower() == self.correct_answer.lower():
-                    print("Correct answer for word question.")  # Debugging statement
                     self.correct_response()
                 else:
-                    print("Incorrect answer for word question.")  # Debugging statement
                     self.incorrect_response()
 
     def correct_response(self):
-        print("Handling correct response.")  # Debugging statement
         self.play_sound('correct')
         self.points += 10
         self.points_label.config(text=f"Points: {self.points}")
@@ -143,29 +136,24 @@ class GamePage(tk.Frame):
         self.after(1000, self.ask_question)  # Use self.after instead of self.root.after
 
     def incorrect_response(self):
-        print("Handling incorrect response.")  # Debugging statement
         self.play_sound('incorrect')
         self.flash_red_cross()
         self.after(1000, self.go_to_main_menu)  # Use self.after instead of self.app.root.after
     
     def go_to_main_menu(self):
-        print("Returning to main menu.")  # Debugging statement
         self.back_to_main_page()
 
     def flash_red_cross(self):
-        print("Flashing red cross.")  # Debugging statement
         self.cross_label.config(text="X")
         self.tick_label.config(text="")
         self.after(1000, lambda: self.cross_label.config(text=""))  # Use self.after
 
     def flash_green_tick(self):
-        print("Flashing green tick.")  # Debugging statement
         self.tick_label.config(text="✓")
         self.cross_label.config(text="")
         self.after(1000, lambda: self.tick_label.config(text=""))  # Use self.after
 
     def play_sound(self, result):
-        print(f"Playing sound for: {result}")  # Debugging statement
         try:
             if result == 'correct':
                 pygame.mixer.Sound("Assets/correct.mp3").play()
@@ -185,7 +173,6 @@ class GamePage(tk.Frame):
 
     # Pause and Overlay management functions
     def toggle_pause(self):
-        print("Toggling pause state.")  # Debugging statement
         if self.game_paused:
             self.game_paused = False
             self.pause_button.config(text="Pause")
@@ -198,7 +185,6 @@ class GamePage(tk.Frame):
 
     def remove_instructions_overlay(self):
         if hasattr(self, 'instructions_overlay_frame'):
-            print("Removing instructions overlay.")  # Debugging statement
             self.instructions_overlay_frame.destroy()  # Destroy the instructions overlay if it exists
 
     def toggle_overlay(self):
@@ -208,7 +194,6 @@ class GamePage(tk.Frame):
             self.show_overlay()
 
     def show_instructions_overlay(self):
-        print("Showing instructions overlay.")  # Debugging statement
         # Hide the pause overlay but keep it in memory to avoid state loss
         self.overlay_frame.place_forget()
 
@@ -276,17 +261,15 @@ class GamePage(tk.Frame):
         instruction6_label.pack(anchor="w", padx=x_offset, pady=10)
 
         # Back button to return to the pause overlay
-        back_button = tk.Button(self.instructions_overlay_frame, text="Back", command=self.hide_instructions_overlay, font=("Helvetica", 24), bg='gray', fg='white')
+        back_button = tk.Button(self.instructions_overlay_frame, text="Back", command=self.app.play_with_sound(self.hide_instructions_overlay), font=("Helvetica", 24), bg='gray', fg='white')
         back_button.pack(pady=30)
 
     def hide_instructions_overlay(self):
-        print("Hiding instructions overlay.")  # Debugging statement
         self.instructions_overlay_frame.destroy()
         self.overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Show the pause overlay again
 
     # Adjust show_overlay to hide the instructions overlay if it exists
     def show_overlay(self):
-        print("Showing pause overlay.")  # Debugging statement
         if hasattr(self, 'instructions_overlay_frame'):
             self.instructions_overlay_frame.destroy()
 
@@ -300,22 +283,21 @@ class GamePage(tk.Frame):
         overlay_label.pack(pady=30)  # Add some top padding
 
         # Resume button
-        resume_button = tk.Button(self.overlay_frame, text="Resume Game", command=self.toggle_pause, font=("Helvetica", 24), bg="GREEN", fg="WHITE")
+        resume_button = tk.Button(self.overlay_frame, text="Resume Game", command=self.app.play_with_sound(self.toggle_pause), font=("Helvetica", 24), bg="GREEN", fg="WHITE")
         resume_button.pack(padx=20, pady=20)
 
         # Instructions button
-        instruction_button = tk.Button(self.overlay_frame, text="Show Instructions", command=self.show_instructions_overlay, font=("Helvetica", 24), bg="BLUE", fg="WHITE")
+        instruction_button = tk.Button(self.overlay_frame, text="Show Instructions", command=self.app.play_with_sound(self.show_instructions_overlay), font=("Helvetica", 24), bg="BLUE", fg="WHITE")
         instruction_button.pack(padx=20, pady=20)
 
         # Main menu button
-        main_menu_button = tk.Button(self.overlay_frame, text="Main Menu", command=self.go_to_main_menu, font=("Helvetica", 24), bg="RED", fg="WHITE")
+        main_menu_button = tk.Button(self.overlay_frame, text="Main Menu", command=self.app.play_with_sound(self.go_to_main_menu), font=("Helvetica", 24), bg="RED", fg="WHITE")
         main_menu_button.pack(padx=20, pady=20)
 
         self.overlay_displayed = True
 
 
     def remove_overlay(self):
-        print("Removing pause overlay.")  # Debugging statement
         self.overlay_frame.destroy()
         self.overlay_displayed = False
 

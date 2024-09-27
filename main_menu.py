@@ -14,7 +14,7 @@ class MainMenu(tk.Frame):
         title_label.pack(pady=150)
 
         # Music toggle button
-        self.music_toggle_button = tk.Button(self, image=app.volume_play_image, command=self.toggle_music, borderwidth=0, bg="black")
+        self.music_toggle_button = tk.Button(self, image=app.volume_play_image, command=app.play_with_sound(self.toggle_music), borderwidth=0, bg="black")
         self.music_toggle_button.place(relx=0.98, rely=0.02, anchor="ne")
         self.music_playing = True
 
@@ -23,8 +23,8 @@ class MainMenu(tk.Frame):
         button_frame.place(relx=0.5, rely=1.0, anchor="s")
 
         # Create buttons
-        play_button = tk.Button(button_frame, image=app.play_btn_image, command=app.switch_to_game_page, borderwidth=0, bg="lightgray")
-        instruction_button = tk.Button(button_frame, image=app.instruction_btn_image, command=app.switch_to_instruction_page, borderwidth=0, bg="lightgray")
+        play_button = tk.Button(button_frame, image=app.play_btn_image, command=app.play_with_sound(app.switch_to_game_page), borderwidth=0, bg="lightgray")
+        instruction_button = tk.Button(button_frame, image=app.instruction_btn_image, command=app.play_with_sound(app.switch_to_instruction_page), borderwidth=0, bg="lightgray")
         high_score_button = tk.Button(button_frame, image=app.high_score_btn_image, command=self.show_high_scores, borderwidth=0, bg="lightgray")
 
         play_button.pack(side=tk.LEFT, padx=40, pady=40)
