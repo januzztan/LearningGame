@@ -13,9 +13,13 @@ class MainMenu(tk.Frame):
         title_label.image = title_image  # Keep a reference to avoid garbage collection
         title_label.pack(pady=60)
 
-        # Close button (Make it more visible and ensure correct placement)
-        close_button = tk.Button(self, text="X", command=self.confirm_close, bg="red", fg="white", font=("Arial", 14), borderwidth=0)
-        close_button.place(x=10, y=10)  # Fixed coordinates to ensure visibility at the top-left corner
+        # Load close button image
+        close_image = PhotoImage(file="Assets/Exit.png")
+
+        # Close button (Using image instead of text)
+        close_button = tk.Button(self, image=close_image, command=self.confirm_close, bg="black", borderwidth=0)
+        close_button.image = close_image  # Keep a reference to avoid garbage collection
+        close_button.place(x=30, y=33)  # Fixed coordinates to ensure visibility at the top-left corner
 
         # Load close prompt sound
         self.close_sound = pygame.mixer.Sound("Assets/Close_promt.mp3")  # Close prompt sound
@@ -37,6 +41,30 @@ class MainMenu(tk.Frame):
         play_button.pack(side=tk.LEFT, padx=40, pady=40)
         instruction_button.pack(side=tk.LEFT, padx=40, pady=40)
         high_score_button.pack(side=tk.LEFT, padx=40, pady=40)
+
+        # Load GIF and set up animation
+        self.gif_frames = [PhotoImage(file="Assets/star.gif", format=f"gif -index {i}") for i in range(self.get_gif_frames("Assets/star.gif"))]
+        self.gif_label = tk.Label(self, bg="black")
+        self.gif_label.place(relx=0.5, rely=0.65, anchor="center")
+        self.animate_gif(0)
+
+    def get_gif_frames(self, file):
+        """Return the number of frames in a GIF."""
+        i = 0
+        while True:
+            try:
+                PhotoImage(file=file, format=f"gif -index {i}")
+            except:
+                break
+            i += 1
+        return i
+
+    def animate_gif(self, frame_index):
+        """Update the GIF label to the next frame and loop it."""
+        frame = self.gif_frames[frame_index]
+        self.gif_label.config(image=frame)
+        frame_index = (frame_index + 1) % len(self.gif_frames)  # Loop the frames
+        self.after(100, self.animate_gif, frame_index)  # Adjust the delay (100 ms) for speed
 
     def toggle_music(self):
         if self.music_playing:
