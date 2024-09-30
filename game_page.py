@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 import pygame
-import save_scores
+from PIL import Image, ImageTk
 
 class GamePage(tk.Frame):
     def __init__(self, app, back_to_main_page_callback):
@@ -146,21 +146,31 @@ class GamePage(tk.Frame):
     def show_game_over_overlay(self):
         # Stop the global background music
         pygame.mixer.music.pause()  # Pause the background music
-        
-        # Play "game over" sound
-        self.play_sound('game_over')  # Assuming you have a 'game_over.mp3' file
-        
+
+        # Play "game over" sound and get the sound length
+        gameover_sound = pygame.mixer.Sound('Assets/gameover_sfx.mp3')
+        gameover_sound.play()
+        sound_length = gameover_sound.get_length()  # Get the duration of the sound
+
         # Create a "Game Over" overlay
         self.overlay_frame = tk.Frame(self, bg="black")
         self.overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Cover the whole game page
         self.overlay_frame.tkraise()
 
-        # Display "Game Over" text
-        game_over_label = tk.Label(self.overlay_frame, text="Game Over", font=("Helvetica", 48), fg="red", bg="black")
-        game_over_label.pack(pady=30)
+        # Load and display an image instead of the "Game Over" text
+        img = Image.open("Assets/GameOver.png")  # Make sure this image exists in your working directory
+        img = img.resize((400, 400))  # Resize image to fit nicely
+        img_tk = ImageTk.PhotoImage(img)
+
+        game_over_image_label = tk.Label(self.overlay_frame, image=img_tk, bg="black")
+        game_over_image_label.image = img_tk  # Keep a reference to avoid garbage collection
+
+         # Center the image in the frame
+        game_over_image_label.pack(expand=True)  # Expands the label to fill available space
+        game_over_image_label.pack(anchor="center")  # Center the image
 
         # Delay before redirecting to save game state or exit
-        self.after(2000, self.redirect_to_save_file)  # Wait 2 seconds before redirect
+        self.after(int(sound_length * 1000), self.redirect_to_save_file)  # Wait the length of the gameover sound
 
 
     def play_sound(self, result):
@@ -171,7 +181,7 @@ class GamePage(tk.Frame):
         pygame.mixer.music.unpause()  # Resume the paused background music
 
         # Call the save score method from save_scores.py
-        self.after(2000, lambda: save_scores.save_name_and_score(self.points, self.back_to_main_page))
+        self.after(2000, lambda: self.app.show_save_score_page(self.points))
 
     
     def go_to_main_menu(self):

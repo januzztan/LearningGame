@@ -24,9 +24,9 @@ class InstructionPage(tk.Frame):
         self.nav_frame = tk.Frame(self.frame)
         self.nav_frame.pack(side="bottom", pady=100)
 
-        self.prev_button = ttk.Button(self.nav_frame, text="<<", command=self.prev_page)
-        self.next_button = ttk.Button(self.nav_frame, text=">>", command=self.next_page)
-        self.exit_button = ttk.Button(self.nav_frame, text="Exit", command=self.quit)
+        self.prev_button = ttk.Button(self.nav_frame, text="<<", command=self.app.play_with_sound(self.prev_page))
+        self.next_button = ttk.Button(self.nav_frame, text=">>", command=self.app.play_with_sound(self.next_page))
+        self.exit_button = ttk.Button(self.nav_frame, text="Exit", command=self.app.play_with_sound(self.app.back_to_main_menu))
 
         self.prev_button.grid(row=0, column=0, padx=50)
         self.next_button.grid(row=0, column=1, padx=50)

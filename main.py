@@ -3,6 +3,7 @@ import pygame
 from main_menu import MainMenu
 from game_page import GamePage
 from instruction_page import InstructionPage
+from save_scores import SaveScoreFrame  # Import the SaveScoreFrame
 
 class MainApplication:
     def __init__(self, root):
@@ -30,8 +31,11 @@ class MainApplication:
         self.main_menu_page = MainMenu(self)
 
         # Initialize pages
-        self.game_page = GamePage(self, self.back_to_main_menu)
+        self.game_page = GamePage(self, self.show_save_score_page)  # GamePage now ends with save score
         self.instruction_page = InstructionPage(self)
+
+        # Create save score page (initially hidden)
+        self.save_score_page = SaveScoreFrame(self.root, 0, self.back_to_main_menu)
 
         # Bind the Escape key to exit fullscreen
         self.root.bind("<Escape>", self.exit_fullscreen)
@@ -54,9 +58,18 @@ class MainApplication:
         self.instruction_page.pack(fill="both", expand=True)
 
     def back_to_main_menu(self):
+        """Return to the main menu."""
         self.game_page.pack_forget()
         self.instruction_page.pack_forget()
+        self.save_score_page.pack_forget()  # Hide the save score page
         self.main_menu_page.pack(fill="both", expand=True)
+
+    def show_save_score_page(self, score):
+        """Show the save score page after the game ends."""
+        self.game_page.pack_forget()  # Hide the game page
+        # Update the score on the save score frame and show it
+        self.save_score_page = SaveScoreFrame(self.root, score, self.back_to_main_menu)
+        self.save_score_page.pack(fill="both", expand=True)
 
     # Function to play click sound and execute command
     def play_with_sound(self, command):
