@@ -10,7 +10,7 @@ class TutorialMenu(tk.Tk):
         self.geometry("1920x1080")
 
         # Load the background image 
-        self.bg_image = Image.open("TutorialBg.png")
+        self.bg_image = Image.open("Assets/TutorialBg.png")
         self.bg_image = self.bg_image.resize((600, 400), Image.LANCZOS)  # Resize to fit the window size
         self.bg_image = ImageTk.PhotoImage(self.bg_image)
 

@@ -243,102 +243,111 @@ class GamePage(tk.Frame):
         # Hide the pause overlay but keep it in memory to avoid state loss
         self.overlay_frame.place_forget()
 
-        # Create the instructions overlay
-        self.instructions_overlay_frame = tk.Frame(self, bg="gray")
+        # Create the instructions overlay with retro black background
+        self.instructions_overlay_frame = tk.Frame(self, bg="black")
         self.instructions_overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Cover the whole game page
         self.instructions_overlay_frame.tkraise()  # Ensure the overlay is on top of everything
 
-        # Instruction Title
-        overlay_label = tk.Label(self.instructions_overlay_frame, text="How to play:", font=("Helvetica", 48), fg="yellow", bg="gray")
+        # Retro-style Title
+        overlay_label = tk.Label(self.instructions_overlay_frame, text="HOW TO PLAY", font=("Courier", 40, "bold"), fg="lime", bg="black")
         overlay_label.pack(pady=30)  # Top padding for the title
 
         # Padding and font settings
         x_offset = 50  # Padding from the left side
-        small_font = ("Helvetica", 28)  # Smaller font size for instructions
-        y_offset = 50  # Initial vertical offset
+        small_font = ("Courier", 24, "bold")  # Smaller retro font size for instructions
 
-        # Instruction 1 (simple, on one line)
-        instruction1_label = tk.Label(self.instructions_overlay_frame, text="1. You start with 3 lives and 0 points.", font=small_font, fg="white", bg="gray")
+        # Instruction 1 (simple, one line)
+        instruction1_label = tk.Label(self.instructions_overlay_frame, text="1. YOU START WITH 3 LIVES AND 0 POINTS.", font=small_font, fg="white", bg="black")
         instruction1_label.pack(anchor="w", padx=x_offset)  # Left aligned with padding
 
-        # Instruction 2
-        part1_label = tk.Label(self.instructions_overlay_frame, text="2. If you see: ", font=small_font, fg="white", bg="gray")
+        # Instruction 2 with "RED" highlighted
+        part1_label = tk.Label(self.instructions_overlay_frame, text="2. IF YOU SEE:", font=small_font, fg="white", bg="black")
         part1_label.pack(anchor="w", padx=x_offset)
 
-        # Instruction 2 (RED and words in the same line)
-        instruction2_frame = tk.Frame(self.instructions_overlay_frame, bg="gray")
+        # RED instruction in one line
+        instruction2_frame = tk.Frame(self.instructions_overlay_frame, bg="black")
         instruction2_frame.pack(anchor="w", padx=x_offset+30, pady=10)  # Left aligned, same line
 
-        red_label = tk.Label(instruction2_frame, text="RED", font=small_font, fg="red", bg="gray")
+        red_label = tk.Label(instruction2_frame, text="RED", font=small_font, fg="red", bg="black")
         red_label.pack(side=tk.LEFT)
 
-        part2_label = tk.Label(instruction2_frame, text=" words, type them exactly.", font=small_font, fg="white", bg="gray")
+        part2_label = tk.Label(instruction2_frame, text="WORDS, TYPE THEM EXACTLY.", font=small_font, fg="white", bg="black")
         part2_label.pack(side=tk.LEFT)
 
-        # Instruction 3 (BLUE and words in the same line)
-        instruction3_frame = tk.Frame(self.instructions_overlay_frame, bg="gray")
+        # Instruction 3 with "BLUE" highlighted
+        instruction3_frame = tk.Frame(self.instructions_overlay_frame, bg="black")
         instruction3_frame.pack(anchor="w", padx=x_offset+30, pady=10)  # Left aligned, same line
 
-        part3_label = tk.Label(instruction3_frame, text="BLUE", font=small_font, fg="blue", bg="gray")
-        part3_label.pack(side=tk.LEFT)
+        blue_label = tk.Label(instruction3_frame, text="BLUE", font=small_font, fg="cyan", bg="black")
+        blue_label.pack(side=tk.LEFT)
 
-        part4_label = tk.Label(instruction3_frame, text=" words, solve the math.", font=small_font, fg="white", bg="gray")
+        part4_label = tk.Label(instruction3_frame, text="WORDS, SOLVE THE MATH.", font=small_font, fg="white", bg="black")
         part4_label.pack(side=tk.LEFT)
 
         # Instruction 4
-        instruction4_label = tk.Label(self.instructions_overlay_frame, text="3. Get it right:", font=small_font, fg="white", bg="gray")
+        instruction4_label = tk.Label(self.instructions_overlay_frame, text="3. GET IT RIGHT:", font=small_font, fg="white", bg="black")
         instruction4_label.pack(anchor="w", padx=x_offset, pady=10)  # Left aligned with padding
 
-        instruction4_label1 = tk.Label(self.instructions_overlay_frame, text="You get 10 points!", font=small_font, fg="green", bg="gray")
+        instruction4_label1 = tk.Label(self.instructions_overlay_frame, text="YOU GET 10 POINTS!", font=small_font, fg="lime", bg="black")
         instruction4_label1.pack(anchor="w", padx=x_offset+30, pady=10)  # Left aligned with padding
 
         # Instruction 5
-        instruction5_frame = tk.Frame(self.instructions_overlay_frame, bg="gray")
+        instruction5_frame = tk.Frame(self.instructions_overlay_frame, bg="black")
         instruction5_frame.pack(anchor="w", padx=x_offset, pady=10)
 
-        instruction5_part1_label = tk.Label(instruction5_frame, text="4. Get it wrong or take too long: ", font=small_font, fg="white", bg="gray")
+        instruction5_part1_label = tk.Label(instruction5_frame, text="4. GET IT WRONG OR TAKE TOO LONG:", font=small_font, fg="white", bg="black")
         instruction5_part1_label.pack(side=tk.LEFT)
 
-        instruction5_part2_label = tk.Label(self.instructions_overlay_frame, text="You lose 1 life.", font=small_font, fg="red", bg="gray")
+        instruction5_part2_label = tk.Label(self.instructions_overlay_frame, text="YOU LOSE 1 LIFE.", font=small_font, fg="red", bg="black")
         instruction5_part2_label.pack(anchor="w", padx=x_offset+30, pady=10)
 
         # Final instruction (simple, on one line)
-        instruction6_label = tk.Label(self.instructions_overlay_frame, text="5. If you lose all 3 lives, the game ends.", font=small_font, fg="white", bg="gray")
+        instruction6_label = tk.Label(self.instructions_overlay_frame, text="5. LOSE ALL 3 LIVES, GAME ENDS.", font=small_font, fg="white", bg="black")
         instruction6_label.pack(anchor="w", padx=x_offset, pady=10)
 
-        # Back button to return to the pause overlay
-        back_button = tk.Button(self.instructions_overlay_frame, text="Back", command=self.app.play_with_sound(self.hide_instructions_overlay), font=("Helvetica", 24), bg='gray', fg='white')
+        # Retro-style Back button
+        back_button = tk.Button(self.instructions_overlay_frame, text="BACK", command=self.app.play_with_sound(self.hide_instructions_overlay), font=("Courier", 28, "bold"), bg="gray", fg="black", width=10, bd=5, relief="ridge")
         back_button.pack(pady=30)
+
 
     def hide_instructions_overlay(self):
         self.instructions_overlay_frame.destroy()
         self.overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Show the pause overlay again
 
-    # Adjust show_overlay to hide the instructions overlay if it exists
     def show_overlay(self):
         if hasattr(self, 'instructions_overlay_frame'):
             self.instructions_overlay_frame.destroy()
 
         # Pause overlay
-        self.overlay_frame = tk.Frame(self, bg="GRAY")
+        self.overlay_frame = tk.Frame(self, bg="black")  # Retro black background
         self.overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Cover the whole game page
         self.overlay_frame.tkraise()
 
-        # Load and display the Game-Paused.png image instead of text
+        # Create a container frame to hold all the elements and center them
+        container = tk.Frame(self.overlay_frame, bg="black")  # Container with same retro background
+        container.place(relx=0.5, rely=0.5, anchor="center")  # Center the container
+
+        # Load and display the Game-Paused.png image (assuming it's a retro-style image)
         self.paused_image = tk.PhotoImage(file="Assets/Game-Paused.png")
-        paused_label = tk.Label(self.overlay_frame, image=self.paused_image, bg="GRAY")
+        paused_label = tk.Label(container, image=self.paused_image, bg="black")
         paused_label.pack(pady=30)  # Add some top padding
 
-        # Resume button
-        resume_button = tk.Button(self.overlay_frame, text="Resume Game", command=self.app.play_with_sound(self.toggle_pause), font=("Helvetica", 24), bg="GREEN", fg="WHITE")
+        # Define a fixed width for the buttons
+        button_width = 20
+
+        # Set retro font style (monospaced font, blocky look)
+        retro_font = ("Courier", 20, "bold")
+
+        # Resume button with retro styling
+        resume_button = tk.Button(container, text="RESUME", command=self.app.play_with_sound(self.toggle_pause), font=retro_font, bg="lime", fg="black", width=button_width, bd=5, relief="ridge")
         resume_button.pack(padx=20, pady=20)
 
-        # Instructions button
-        instruction_button = tk.Button(self.overlay_frame, text="How To Play", command=self.app.play_with_sound(self.show_instructions_overlay), font=("Helvetica", 24), bg="BLUE", fg="WHITE")
+        # Instructions button with retro styling
+        instruction_button = tk.Button(container, text="HOW TO PLAY", command=self.app.play_with_sound(self.show_instructions_overlay), font=retro_font, bg="cyan", fg="black", width=button_width, bd=5, relief="ridge")
         instruction_button.pack(padx=20, pady=20)
 
-        # Main menu button
-        main_menu_button = tk.Button(self.overlay_frame, text="Main Menu", command=self.app.play_with_sound(self.go_to_main_menu), font=("Helvetica", 24), bg="RED", fg="WHITE")
+        # Main menu button with retro styling
+        main_menu_button = tk.Button(container, text="MAIN MENU", command=self.app.play_with_sound(self.go_to_main_menu), font=retro_font, bg="red", fg="black", width=button_width, bd=5, relief="ridge")
         main_menu_button.pack(padx=20, pady=20)
 
         self.overlay_displayed = True

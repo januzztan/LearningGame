@@ -8,26 +8,32 @@ class SaveScoreFrame(tk.Frame):
         self.score = score  # Store the score passed in
         self.back_to_main_menu = back_to_main_menu  # Callback to go back to the main menu
         self.play_with_sound = play_with_sound  # Reference to play_with_sound function from MainApplication
+        self.configure(bg="black")  # Retro background color
         self.build_frame()  # Call the function to build the frame layout
+        self.bind_enter_key()  # Bind the Enter key to the save function
 
     def bind_enter_key(self):
         """Bind the Enter key to save actions."""
-        self.master.bind("<Return>",  self.save_score_event)
+        self.master.bind("<Return>", self.save_score_event)
 
     def unbind_enter_key(self):
         """Unbind the Enter key when leaving the save page."""
         self.master.unbind("<Return>")
 
     def build_frame(self):
-        # Create a label for the name entry
-        tk.Label(self, text="Enter your name (3 characters max):", font=("Helvetica", 16)).pack(pady=10)
+        # Create a container frame to center the content
+        container = tk.Frame(self, bg="black")  # Retro background
+        container.place(relx=0.5, rely=0.5, anchor="center")  # Center the container in the middle
 
-        # Create an entry widget for name input
-        self.name_entry = tk.Entry(self, font=("Helvetica", 16))
+        # Retro-style label for the name entry (blocky font and bright colors)
+        tk.Label(container, text="ENTER NAME (3 CHARACTERS):", font=("Courier", 40, "bold"), fg="lime", bg="black").pack(pady=10)
+
+        # Create an entry widget for name input (Retro text box style)
+        self.name_entry = tk.Entry(container, font=("Courier", 40, "bold"), fg="white", bg="gray", width=10, justify="center")
         self.name_entry.pack(pady=10)
 
-        # Create a button that will save the score with sound
-        save_button = tk.Button(self, text="Save", command=self.play_with_sound(self.save_score), font=("Helvetica", 16))
+        # Create a button with retro style to save the score
+        save_button = tk.Button(container, text="SAVE", command=self.play_with_sound(self.save_score), font=("Courier", 20, "bold"), fg="yellow", bg="black", activebackground="gray", bd=5, relief="ridge")
         save_button.pack(pady=10)
 
     def save_score_event(self, event):
