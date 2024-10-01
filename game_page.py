@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import pygame
+import tkinter.messagebox as messagebox  # Import the messagebox module
 from PIL import Image, ImageTk
 
 class GamePage(tk.Frame):
@@ -56,8 +57,14 @@ class GamePage(tk.Frame):
         self.pause_button = tk.Button(self, text="Pause", command=app.play_with_sound(self.toggle_pause), font=("Helvetica", 24))
         self.pause_button.place(relx=0.98, rely=0.02, anchor="ne")  # Top-right corner
 
-        # Bind the Return key to check the answer
-        self.bind_all('<Return>', lambda event: self.check_answer())
+    def bind_enter_key(self):
+        """Bind the Enter key to game actions."""
+        self.app.root.bind("<Return>", lambda event: self.check_answer())
+
+    def unbind_enter_key(self):
+        """Unbind the Enter key when leaving the game."""
+        self.app.root.unbind("<Return>")
+
 
     def start_game(self):
         # Reset the game state before starting a new game
@@ -173,19 +180,14 @@ class GamePage(tk.Frame):
         self.after(int(sound_length * 1000), self.redirect_to_save_file)  # Wait the length of the gameover sound
 
 
-    def play_sound(self, result):
-        pygame.mixer.Sound("Assets/incorrect.mp3").play()
-
     def redirect_to_save_file(self):
         # Resume the global background music
+        self.unbind_enter_key()
         pygame.mixer.music.unpause()  # Resume the paused background music
 
         # Call the save score method from save_scores.py
         self.after(2000, lambda: self.app.show_save_score_page(self.points))
 
-    
-    def go_to_main_menu(self):
-        self.back_to_main_page()
 
     def flash_red_cross(self):
         self.cross_label.config(text="X")
@@ -322,16 +324,17 @@ class GamePage(tk.Frame):
         self.overlay_frame.place(relx=0, rely=0, relwidth=1, relheight=1)  # Cover the whole game page
         self.overlay_frame.tkraise()
 
-        # Create overlay text
-        overlay_label = tk.Label(self.overlay_frame, text="Game Paused", font=("Helvetica", 48), fg="YELLOW", bg="GRAY")
-        overlay_label.pack(pady=30)  # Add some top padding
+        # Load and display the Game-Paused.png image instead of text
+        self.paused_image = tk.PhotoImage(file="Assets/Game-Paused.png")
+        paused_label = tk.Label(self.overlay_frame, image=self.paused_image, bg="GRAY")
+        paused_label.pack(pady=30)  # Add some top padding
 
         # Resume button
         resume_button = tk.Button(self.overlay_frame, text="Resume Game", command=self.app.play_with_sound(self.toggle_pause), font=("Helvetica", 24), bg="GREEN", fg="WHITE")
         resume_button.pack(padx=20, pady=20)
 
         # Instructions button
-        instruction_button = tk.Button(self.overlay_frame, text="Show Instructions", command=self.app.play_with_sound(self.show_instructions_overlay), font=("Helvetica", 24), bg="BLUE", fg="WHITE")
+        instruction_button = tk.Button(self.overlay_frame, text="How To Play", command=self.app.play_with_sound(self.show_instructions_overlay), font=("Helvetica", 24), bg="BLUE", fg="WHITE")
         instruction_button.pack(padx=20, pady=20)
 
         # Main menu button
@@ -340,6 +343,19 @@ class GamePage(tk.Frame):
 
         self.overlay_displayed = True
 
+
+    def go_to_main_menu(self):
+        # First confirmation dialog: Ask if the player is sure they want to go back to the main menu
+        result = messagebox.askyesno("Confirm", "Are you sure you want to go back to the main menu?")
+        
+        if result:  # If the player clicks "Yes"
+            # Second confirmation dialog: Ask if the player wants to save the game
+            save_game = messagebox.askyesno("Save Game", "Do you want to save the game before exiting?")
+            
+            if save_game:  # If the player clicks "Yes" to save the game
+                self.redirect_to_save_file()  # Call the function to save the game
+            else:  # If the player clicks "No" to saving the game
+                self.app.back_to_main_menu()  # Just go back to the main menu without saving
 
     def remove_overlay(self):
         self.overlay_frame.destroy()

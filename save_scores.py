@@ -3,11 +3,20 @@ from tkinter import messagebox
 import os
 
 class SaveScoreFrame(tk.Frame):
-    def __init__(self, parent, score, back_to_main_menu, *args, **kwargs):
+    def __init__(self, parent, score, back_to_main_menu, play_with_sound, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.score = score  # Store the score passed in
         self.back_to_main_menu = back_to_main_menu  # Callback to go back to the main menu
+        self.play_with_sound = play_with_sound  # Reference to play_with_sound function from MainApplication
         self.build_frame()  # Call the function to build the frame layout
+
+    def bind_enter_key(self):
+        """Bind the Enter key to save actions."""
+        self.master.bind("<Return>",  self.save_score_event)
+
+    def unbind_enter_key(self):
+        """Unbind the Enter key when leaving the save page."""
+        self.master.unbind("<Return>")
 
     def build_frame(self):
         # Create a label for the name entry
@@ -17,9 +26,13 @@ class SaveScoreFrame(tk.Frame):
         self.name_entry = tk.Entry(self, font=("Helvetica", 16))
         self.name_entry.pack(pady=10)
 
-        # Create a button that will save the score
-        save_button = tk.Button(self, text="Save", command=self.save_score, font=("Helvetica", 16))
+        # Create a button that will save the score with sound
+        save_button = tk.Button(self, text="Save", command=self.play_with_sound(self.save_score), font=("Helvetica", 16))
         save_button.pack(pady=10)
+
+    def save_score_event(self, event):
+        """This method will handle Enter key presses"""
+        self.save_score()  # Call save_score method when Enter key is pressed
 
     def save_score(self):
         name = self.name_entry.get().strip()  # Remove any leading/trailing spaces

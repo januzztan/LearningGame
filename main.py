@@ -35,7 +35,7 @@ class MainApplication:
         self.instruction_page = InstructionPage(self)
 
         # Create save score page (initially hidden)
-        self.save_score_page = SaveScoreFrame(self.root, 0, self.back_to_main_menu)
+        self.save_score_page = SaveScoreFrame(self.root, 0, self.back_to_main_menu, self.play_with_sound)  # Pass play_with_sound here too
 
         # Bind the Escape key to exit fullscreen
         self.root.bind("<Escape>", self.exit_fullscreen)
@@ -49,8 +49,10 @@ class MainApplication:
         self.root.state('zoomed')  # Make sure the window returns to normal state
 
     def switch_to_game_page(self):
+        self.unbind_enter_key()  # Unbind any previous Enter key binding
         self.main_menu_page.pack_forget()
         self.game_page.pack(fill="both", expand=True)
+        self.game_page.bind_enter_key()  # Bind Enter key to GamePage functionality
         self.game_page.start_game()
 
     def switch_to_instruction_page(self):
@@ -59,6 +61,7 @@ class MainApplication:
 
     def back_to_main_menu(self):
         """Return to the main menu."""
+        self.unbind_enter_key()  # Unbind any previous Enter key binding
         self.game_page.pack_forget()
         self.instruction_page.pack_forget()
         self.save_score_page.pack_forget()  # Hide the save score page
@@ -66,9 +69,10 @@ class MainApplication:
 
     def show_save_score_page(self, score):
         """Show the save score page after the game ends."""
+        self.unbind_enter_key()  # Unbind GamePage Enter key before showing the save page
         self.game_page.pack_forget()  # Hide the game page
-        # Update the score on the save score frame and show it
-        self.save_score_page = SaveScoreFrame(self.root, score, self.back_to_main_menu)
+        self.save_score_page = SaveScoreFrame(self.root, score, self.back_to_main_menu, self.play_with_sound)
+        self.save_score_page.bind_enter_key()  # Bind Enter key to save_scores functionality
         self.save_score_page.pack(fill="both", expand=True)
 
     # Function to play click sound and execute command
@@ -77,6 +81,10 @@ class MainApplication:
             self.click_sound.play()  # Play click sound
             command()  # Execute the actual command
         return wrapper
+    
+    def unbind_enter_key(self):
+        """Unbind the Enter key for both game and save score frames."""
+        self.root.unbind("<Return>")  # Unbind Enter key globally
 
 if __name__ == "__main__":
     root = tk.Tk()
