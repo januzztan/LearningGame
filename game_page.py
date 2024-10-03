@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import PhotoImage
 import random
 import pygame
 import tkinter.messagebox as messagebox  # Import the messagebox module
@@ -6,78 +7,136 @@ from PIL import Image, ImageTk
 
 class GamePage(tk.Frame):
     def __init__(self, app, back_to_main_page_callback):
+        # Get easy words from words.txt file
         def load_words():
             word_list = []
             try:
                 with open("Assets/dictionary/words.txt", "r") as f:
                     word_list = f.read().splitlines()
+            # Fall back words if file is unable to open
             except FileNotFoundError:
                 word_list = ['apple', 'banana', 'cat', 'dog', 'elephant']
             return word_list
         
-        super().__init__(app.root, bg="lightgray")
+        # Get hard words from hard_words.txt file
+        def load_hard_words():
+            word_list = []
+            try:
+                with open("Assets/dictionary/hard_words.txt", "r") as f:
+                    word_list = f.read().splitlines()
+            # Fall back words if file is unable to open
+            except FileNotFoundError:
+                word_list = ['Whisper', 'Journey', 'Treasure', 'Giggle', 'Rainbow']
+            return word_list
+        
+        super().__init__(app.root, bg="black")
         self.app = app
         self.points = 0
+        self.lives = 3
         self.question_type = None
         self.correct_answer = None
         self.game_paused = False
         self.overlay_displayed = False
+        self.timer = 21
+        self.timer_active = False
 
          # Load click sound
         pygame.mixer.init()
         self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")  # Ensure correct path to the click sound file
         
+        # Load words
         self.word_list = load_words()
+        self.hard_word_list = load_hard_words()
 
-        self.back_to_main_page = back_to_main_page_callback  # Store the callback
+        # Store callback to mainpage
+        self.back_to_main_page = back_to_main_page_callback
 
-        # GUI components for the game
-        self.label = tk.Label(self, text="Press Start to begin!", font=("Helvetica", 40), bg="lightgray")
-        self.label.pack(pady=(80,40))
-        
-        self.entry = tk.Entry(self, font=("Helvetica", 30), width=20)
-        self.entry.pack(pady=20)
-        
-        self.submit_button = tk.Button(self, text="Submit", command=app.play_with_sound(self.check_answer), font=("Helvetica", 24))
-        self.submit_button.pack(pady=20)
-        
-        self.points_label = tk.Label(self, text=f"Points: {self.points}", font=("Helvetica", 30), bg="lightgray")
-        self.points_label.pack(pady=20)
+        # Load pause image
+        self.pause_image = PhotoImage(file="Assets/Pause_btn.png")
 
-        self.feedback_frame = tk.Frame(self, bg="lightgray")
-        self.feedback_frame.pack(pady=20)
+        # Load heart images
+        self.heart_full_image = PhotoImage(file="Assets/heart_full.png")
+        self.heart_empty_image = PhotoImage(file="Assets/heart_empty.png")
 
-        self.cross_label = tk.Label(self.feedback_frame, text="", font=("Helvetica", 200), fg="red", bg="lightgray")
+        # Load cross and tick images
+        self.cross_image = PhotoImage(file="Assets/cross.png")
+        self.tick_image = PhotoImage(file="Assets/tick.png")
+
+        # Set up lives display
+        self.lives_frame = tk.Frame(self, bg="black")
+        self.lives_frame.place(relx=0.5, rely=0.89, anchor="center")
+        self.lives_labels = []  # Store heart image labels in list
+        for i in range(3):
+            label = tk.Label(self.lives_frame, image=self.heart_full_image, bg="black")
+            label.pack(side="left", padx=10)
+            self.lives_labels.append(label)
+
+        #===================GUI components for the game===================
+        # Question
+        self.label = tk.Label(self, font=("Courier", 80, "bold"), bg="black", fg="white")
+        self.label.place(relx=0.5, rely=0.35, anchor="center")
+
+        # Frame to hold the entry box and submit button side by side
+        self.input_frame = tk.Frame(self, bg="black")
+        self.input_frame.place(relx=0.5, rely=0.49, anchor="center")
+
+        # Entry box
+        self.entry = tk.Entry(self.input_frame, font=("Courier", 30, "bold"), width=25, justify="center")
+        self.entry.grid(row=0, column=0, padx=10, ipady=10)
+
+        # Submit button
+        self.submit_button = tk.Button(self.input_frame, text="Submit", command=app.play_with_sound(self.check_answer), font=("Courier", 24, "bold"))
+        self.submit_button.grid(row=0, column=1, padx=20)
+
+        # Points
+        self.points_label = tk.Label(self, text=f"Points: {self.points}", font=("Courier", 50, "bold"), bg="black", fg="white")
+        self.points_label.place(relx=0.5, rely=0.05, anchor="center")
+
+        # Frame to hold the cross and tick graphic
+        self.feedback_frame = tk.Frame(self, bg="black")
+        self.feedback_frame.place(relx=0.5, rely=0.69, anchor="center")
+
+        # Cross graphic
+        self.cross_label = tk.Label(self.feedback_frame, image="", bg="black")
         self.cross_label.grid(row=0, column=0)
 
-        self.tick_label = tk.Label(self.feedback_frame, text="", font=("Helvetica", 200), fg="green", bg="lightgray")
-        self.tick_label.grid(row=0, column=0)
+        # Tick graphic
+        self.tick_label = tk.Label(self.feedback_frame, image="", bg="black")
+        self.tick_label.grid(row=0, column=1)
 
-        # Add Pause/Unpause button
-        self.pause_button = tk.Button(self, text="Pause", command=app.play_with_sound(self.toggle_pause), font=("Helvetica", 24))
-        self.pause_button.place(relx=0.98, rely=0.02, anchor="ne")  # Top-right corner
+        # Pause button
+        self.pause_button = tk.Button(self, image=self.pause_image, command=app.play_with_sound(self.toggle_pause), bg="black")
+        self.pause_button.image = self.pause_image  # Keep a reference to avoid garbage collection
+        self.pause_button.place(relx=0.98, rely=0.02, anchor="ne")
 
+        # Timer Label (to display the countdown)
+        self.timer_label = tk.Label(self, text=f"Time Left: {self.timer}s", font=("Courier", 24, "bold"), fg="white", bg="black")
+        self.timer_label.place(x=10, y=10)
+
+    # Bind the Enter key to game actions
     def bind_enter_key(self):
-        """Bind the Enter key to game actions."""
         self.app.root.bind("<Return>", lambda event: self.check_answer())
 
+    # Unbind the Enter key when leaving the game
     def unbind_enter_key(self):
-        """Unbind the Enter key when leaving the game."""
         self.app.root.unbind("<Return>")
 
-
+    #starts game
     def start_game(self):
-        # Reset the game state before starting a new game
         self.reset_game_state()
-        self.points = 0
-        self.points_label.config(text=f"Points: {self.points}")
         self.ask_question()
 
+    #restarts game state
     def reset_game_state(self):
-        # Reset the paused state
         self.game_paused = False
         self.overlay_displayed = False
+        self.points = 0
+        self.points_label.config(text=f"Points: {self.points}")
+        self.lives = 3  # Reset lives to 3
+        self.timer = 21  # Reset timer to 20 seconds
         self.pause_button.config(text="Pause")
+        self.timer_label.config(text=f"Time Left: {self.timer}s")  # Update timer display
+        self.ask_question()
 
         # Remove the overlay if it's displayed
         if hasattr(self, 'overlay_frame'):
@@ -87,38 +146,88 @@ class GamePage(tk.Frame):
         self.points = 0
         self.points_label.config(text=f"Points: {self.points}")
 
+    #generates new questions
     def ask_question(self):
         if not self.game_paused:
             self.entry.delete(0, tk.END)
-            self.cross_label.config(text="")
-            self.tick_label.config(text="")
+            self.reset_timer()
             question_type = random.choice(['math', 'word'])
             self.question_type = question_type
 
             if question_type == 'math':
                 self.generate_random_math_problem()
+                self.label.config(fg="blue")
             else:
                 self.generate_random_word_problem()
+                self.label.config(fg="red")
         else:
             print("Game is paused. Cannot ask a question.")  # Debugging statement
 
+    #Round countdown timer, 20 secs per question
+    def countdown_timer(self):
+        if not self.game_paused and self.timer > 0 and self.timer_active:
+            self.timer -= 1
+            self.timer_label.config(text=f"Time Left: {self.timer}s")
+            self.timer_callback_id = self.after(1000, self.countdown_timer)  # Schedule the next call of countdown_timer in 1 second (1000 ms)
+        elif self.timer == 0:
+            self.lose_life()
+            self.incorrect_response()
+            self.reset_timer()
+
+    # Resets the timer and restarts the countdown for the next question
+    def reset_timer(self):
+        # Cancel the previous timer if it exists to prevent overlapping timers
+        if hasattr(self, 'timer_callback_id'):
+            self.after_cancel(self.timer_callback_id)  # Cancel previous timer callback
+
+        # For new question
+        self.timer = 21
+        self.timer_active = True
+        self.timer_label.config(text=f"Time Left: {self.timer}s")
+        self.countdown_timer()  # Restart the countdown
+
+    # Generate a math problem, starts with easy questions, increasing difficulty when score >= 200
+    # Range of numbers between 1 to 10 only
     def generate_random_math_problem(self):
-        a = random.randint(1, 10)
-        b = random.randint(1, 10)
-        op = random.choice(['+', '-'])
+        if self.points >= 200:
+            a = random.randint(1, 10)
+            b = random.randint(1, 10)
+            op = random.choice(['+', '-', 'x', '/'])
+            if op == '/':
+                # Ensure a is a multiple of b for integer division
+                b = random.randint(1, 10)  # Ensure b is at least 1
+                a = b * random.randint(1, 10)  # Ensure a is a multiple of b
+        # Easier questions for scores below 200
+        else:
+            a = random.randint(1, 10)
+            b = random.randint(1, 10)
+            op = random.choice(['+', '-'])
+
         if op == '+':
             self.correct_answer = a + b
-        else:
+        elif op == '-':
+            if a < b: # Makes sure there are - qns that result in - ve answer
+                a, b = b, a
             self.correct_answer = a - b
+        elif op == 'x':
+            self.correct_answer = a * b
+        elif op == '/':
+            self.correct_answer = a // b
+
         question_text = f"What is {a} {op} {b}?"
         self.label.config(text=question_text)
 
+    # Generate a word to type, starts with easy words, increasing difficulty when score >= 200
     def generate_random_word_problem(self):
-        word = random.choice(self.word_list)
+        if self.points >= 200:
+            word = random.choice(self.hard_word_list)
+        else:
+            word = random.choice(self.word_list)
         self.correct_answer = word
         question_text = f"Type the word: {word}"
         self.label.config(text=question_text)
 
+    # Check response from player
     def check_answer(self):
         if not self.game_paused:
             user_input = self.entry.get()
@@ -127,15 +236,19 @@ class GamePage(tk.Frame):
                     if int(user_input) == self.correct_answer:
                         self.correct_response()
                     else:
+                        self.lose_life()
                         self.incorrect_response()
                 except ValueError:
+                    self.lose_life()
                     self.incorrect_response()
             else:
                 if user_input.lower() == self.correct_answer.lower():
                     self.correct_response()
                 else:
+                    self.lose_life()
                     self.incorrect_response()
 
+    # Correct response
     def correct_response(self):
         self.play_sound('correct')
         self.points += 10
@@ -143,16 +256,39 @@ class GamePage(tk.Frame):
         self.flash_green_tick()
         self.after(1000, self.ask_question)  # Use self.after instead of self.root.after
 
+    # Wrong response
     def incorrect_response(self):
         self.play_sound('incorrect')
         self.flash_red_cross()
 
-        # Show Game Over overlay before redirecting
-        self.after(1000, self.show_game_over_overlay)
+    # Lose life
+    def lose_life(self):
+        if not self.game_paused:  # Prevent life loss if the game is paused
+            self.lives -= 1
+            self.update_lives_display()
+            if self.lives <= 0: # Show game over when lives reach 0
+                self.show_game_over_overlay()
+            else: # Move on to the next question after 1 second
+                self.after(1000, self.ask_question) 
 
+    # Change lives displayed
+    def update_lives_display(self):
+        for i in range(3):
+            if i < self.lives:
+                self.lives_labels[i].config(image=self.heart_full_image)
+            else:
+                self.lives_labels[i].config(image=self.heart_empty_image)
+
+    # Game over overlay and Ending of game
     def show_game_over_overlay(self):
+        # Stop the countdown timer if it's still running
+        self.after_cancel(self.timer_callback_id)
+        
+        # Pauses game instance
+        self.game_paused = True
+
         # Stop the global background music
-        pygame.mixer.music.pause()  # Pause the background music
+        pygame.mixer.music.pause()
 
         # Play "game over" sound and get the sound length
         gameover_sound = pygame.mixer.Sound('Assets/gameover_sfx.mp3')
@@ -179,7 +315,7 @@ class GamePage(tk.Frame):
         # Delay before redirecting to save game state or exit
         self.after(int(sound_length * 1000), self.redirect_to_save_file)  # Wait the length of the gameover sound
 
-
+    # Moves to save score page
     def redirect_to_save_file(self):
         # Resume the global background music
         self.unbind_enter_key()
@@ -188,17 +324,19 @@ class GamePage(tk.Frame):
         # Call the save score method from save_scores.py
         self.after(2000, lambda: self.app.show_save_score_page(self.points))
 
-
+    # Flash red cross with wrong response
     def flash_red_cross(self):
-        self.cross_label.config(text="X")
-        self.tick_label.config(text="")
-        self.after(1000, lambda: self.cross_label.config(text=""))  # Use self.after
+        self.cross_label.config(image=self.cross_image)
+        self.tick_label.config(image="")  # Clear the cross image
+        self.after(1000, lambda: self.cross_label.config(image=""))  # Hide after 1 second
 
+    # Flash green tick with correct response
     def flash_green_tick(self):
-        self.tick_label.config(text="✓")
-        self.cross_label.config(text="")
-        self.after(1000, lambda: self.tick_label.config(text=""))  # Use self.after
+        self.tick_label.config(image=self.tick_image)
+        self.cross_label.config(image="")  # Clear the tick image
+        self.after(1000, lambda: self.tick_label.config(image=""))  # Hide after 1 second
 
+    # Play correct and incorrect sound with reponse
     def play_sound(self, result):
         try:
             if result == 'correct':
@@ -221,11 +359,13 @@ class GamePage(tk.Frame):
     def toggle_pause(self):
         if self.game_paused:
             self.game_paused = False
+            self.countdown_timer()
             self.pause_button.config(text="Pause")
             self.remove_overlay()  # Hide pause overlay when resuming the game
             self.remove_instructions_overlay()  # Hide instructions overlay if it is displayed
         else:
             self.game_paused = True
+            self.after_cancel(self.timer_callback_id)
             self.pause_button.config(text="Resume")
             self.show_overlay()  # Show pause overlay
 
