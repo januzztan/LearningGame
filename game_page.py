@@ -126,7 +126,6 @@ class GamePage(tk.Frame):
         self.reset_game_state()
         self.ask_question()
 
-    #restarts game state
     def reset_game_state(self):
         self.game_paused = False
         self.overlay_displayed = False
@@ -136,15 +135,20 @@ class GamePage(tk.Frame):
         self.timer = 21  # Reset timer to 20 seconds
         self.pause_button.config(text="Pause")
         self.timer_label.config(text=f"Time Left: {self.timer}s")  # Update timer display
-        self.ask_question()
+        
+        # Update heart images to full hearts (since lives are reset to 3)
+        self.update_lives_display()
 
         # Remove the overlay if it's displayed
         if hasattr(self, 'overlay_frame'):
             self.overlay_frame.destroy()
 
         # Reset points and other game variables
-        self.points = 0
-        self.points_label.config(text=f"Points: {self.points}")
+        # Removed the second ask_question() here
+        self.ask_question()  # Only need to ask the question once after resetting
+
+
+
 
     #generates new questions
     def ask_question(self):
@@ -322,7 +326,7 @@ class GamePage(tk.Frame):
         pygame.mixer.music.unpause()  # Resume the paused background music
 
         # Call the save score method from save_scores.py
-        self.after(2000, lambda: self.app.show_save_score_page(self.points))
+        self.app.show_save_score_page(self.points)
 
     # Flash red cross with wrong response
     def flash_red_cross(self):
