@@ -29,7 +29,10 @@ class MainApplication:
         self.save_score_page = None  # Placeholder for SaveScoreFrame
 
         # Bind the Escape key to exit fullscreen
-        self.root.bind("<Escape>", self.exit_fullscreen)
+        self.root.bind("<Escape>", self.exit_fullscreen)\
+        
+        # Set a minimum size for the window (width, height)
+        self.root.minsize(800, 600)
 
         # Show the main menu
         self.main_menu_page.pack(fill="both", expand=True)
