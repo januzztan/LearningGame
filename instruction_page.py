@@ -12,9 +12,9 @@ class InstructionPage(tk.Frame):
         self.controller = controller
 
         # Load the images using PIL
-        self.page1_image = ImageTk.PhotoImage(Image.open("Assets/Tutorial_How2Play.png").resize((1632, 646)))
-        self.page2_image = ImageTk.PhotoImage(Image.open("Assets/Tutorial_LivesNPoints.png").resize((1632, 646)))
-        self.page3_image = ImageTk.PhotoImage(Image.open("Assets/Tutorial_Tips2Succeed.png").resize((1632, 646)))
+        self.page1_image = ImageTk.PhotoImage(Image.open("Assets/Pictures/Tutorial_How2Play.png").resize((1632, 646)))
+        self.page2_image = ImageTk.PhotoImage(Image.open("Assets/Pictures/Tutorial_LivesNPoints.png").resize((1632, 646)))
+        self.page3_image = ImageTk.PhotoImage(Image.open("Assets/Pictures/Tutorial_Tips2Succeed.png").resize((1632, 646)))
 
         self.create_widgets()
 

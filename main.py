@@ -37,11 +37,11 @@ class MainApplication:
     def load_images(self):
         """Load images for buttons."""
         try:
-            self.volume_play_image = tk.PhotoImage(file="Assets/Volume_play.png")
-            self.volume_mute_image = tk.PhotoImage(file="Assets/Volume_mute.png")
-            self.play_btn_image = tk.PhotoImage(file="Assets/Start_btn.png")
-            self.instruction_btn_image = tk.PhotoImage(file="Assets/Instruction_btn.png")
-            self.high_score_btn_image = tk.PhotoImage(file="Assets/HighScore_btn.png")
+            self.volume_play_image = tk.PhotoImage(file="Assets/Pictures/Volume_play.png")
+            self.volume_mute_image = tk.PhotoImage(file="Assets/Pictures/Volume_mute.png")
+            self.play_btn_image = tk.PhotoImage(file="Assets/Pictures/Start_btn.png")
+            self.instruction_btn_image = tk.PhotoImage(file="Assets/Pictures/Instruction_btn.png")
+            self.high_score_btn_image = tk.PhotoImage(file="Assets/Pictures/HighScore_btn.png")
         except tk.TclError as e:
             tk.messagebox.showerror("Image Load Error", f"Failed to load images: {e}")
             self.root.destroy()
@@ -50,10 +50,10 @@ class MainApplication:
         """Initialize the Pygame mixer for sound effects."""
         pygame.mixer.init()
         try:
-            pygame.mixer.music.load("Assets/BGM.mp3")
+            pygame.mixer.music.load("Assets/SFX/BGM.mp3")
             pygame.mixer.music.set_volume(0.05)
             pygame.mixer.music.play(-1)
-            self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")
+            self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")
         except pygame.error as e:
             tk.messagebox.showerror("Sound Load Error", f"Failed to load sound: {e}")
             self.click_sound = None

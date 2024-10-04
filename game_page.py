@@ -42,7 +42,7 @@ class GamePage(tk.Frame):
 
          # Load click sound
         pygame.mixer.init()
-        self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")  # Ensure correct path to the click sound file
+        self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")  # Ensure correct path to the click sound file
         
         # Load words
         self.word_list = load_words()
@@ -52,15 +52,15 @@ class GamePage(tk.Frame):
         self.back_to_main_page = back_to_main_page_callback
 
         # Load pause image
-        self.pause_image = PhotoImage(file="Assets/Pause_btn.png")
+        self.pause_image = PhotoImage(file="Assets/Pictures/Pause_btn.png")
 
         # Load heart images
-        self.heart_full_image = PhotoImage(file="Assets/heart_full.png")
-        self.heart_empty_image = PhotoImage(file="Assets/heart_empty.png")
+        self.heart_full_image = PhotoImage(file="Assets/Pictures/heart_full.png")
+        self.heart_empty_image = PhotoImage(file="Assets/Pictures/heart_empty.png")
 
         # Load cross and tick images
-        self.cross_image = PhotoImage(file="Assets/cross.png")
-        self.tick_image = PhotoImage(file="Assets/tick.png")
+        self.cross_image = PhotoImage(file="Assets/Pictures/cross.png")
+        self.tick_image = PhotoImage(file="Assets/Pictures/tick.png")
 
         # Set up lives display
         self.lives_frame = tk.Frame(self, bg="black")
@@ -295,7 +295,7 @@ class GamePage(tk.Frame):
         pygame.mixer.music.pause()
 
         # Play "game over" sound and get the sound length
-        gameover_sound = pygame.mixer.Sound('Assets/gameover_sfx.mp3')
+        gameover_sound = pygame.mixer.Sound('Assets/SFX/gameover_sfx.mp3')
         gameover_sound.play()
         sound_length = gameover_sound.get_length()  # Get the duration of the sound
 
@@ -305,7 +305,7 @@ class GamePage(tk.Frame):
         self.overlay_frame.tkraise()
 
         # Load and display an image instead of the "Game Over" text
-        img = Image.open("Assets/GameOver.png")  # Make sure this image exists in your working directory
+        img = Image.open("Assets/Pictures/GameOver.png")  # Make sure this image exists in your working directory
         img = img.resize((400, 400))  # Resize image to fit nicely
         img_tk = ImageTk.PhotoImage(img)
 
@@ -344,9 +344,9 @@ class GamePage(tk.Frame):
     def play_sound(self, result):
         try:
             if result == 'correct':
-                pygame.mixer.Sound("Assets/correct.mp3").play()
+                pygame.mixer.Sound("Assets/SFX/correct.mp3").play()
             elif result == 'incorrect':
-                pygame.mixer.Sound('Assets/incorrect.mp3').play()
+                pygame.mixer.Sound('Assets/SFX/incorrect.mp3').play()
         except pygame.error as e:
             print(f"Pygame sound error: {e}")  # Debugging statement
     
@@ -472,7 +472,7 @@ class GamePage(tk.Frame):
         container.place(relx=0.5, rely=0.5, anchor="center")  # Center the container
 
         # Load and display the Game-Paused.png image (assuming it's a retro-style image)
-        self.paused_image = tk.PhotoImage(file="Assets/Game-Paused.png")
+        self.paused_image = tk.PhotoImage(file="Assets/Pictures/Game-Paused.png")
         paused_label = tk.Label(container, image=self.paused_image, bg="black")
         paused_label.pack(pady=30)  # Add some top padding
 
