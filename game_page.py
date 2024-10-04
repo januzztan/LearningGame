@@ -105,7 +105,7 @@ class GamePage(tk.Frame):
         self.tick_label.grid(row=0, column=1)
 
         # Pause button
-        self.pause_button = tk.Button(self, image=self.pause_image, command=app.play_with_sound(self.toggle_pause), bg="black")
+        self.pause_button = tk.Button(self, image=self.pause_image, command=app.play_with_sound(self.toggle_pause), bg="black", borderwidth=0)
         self.pause_button.image = self.pause_image  # Keep a reference to avoid garbage collection
         self.pause_button.place(relx=0.98, rely=0.02, anchor="ne")
 
