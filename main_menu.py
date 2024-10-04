@@ -36,7 +36,7 @@ class MainMenu(tk.Frame):
         # Create buttons
         play_button = tk.Button(button_frame, image=app.play_btn_image, command=app.play_with_sound(app.switch_to_game_page), borderwidth=0, bg="lightgray")
         instruction_button = tk.Button(button_frame, image=app.instruction_btn_image, command=app.play_with_sound(app.switch_to_instruction_page), borderwidth=0, bg="lightgray")
-        high_score_button = tk.Button(button_frame, image=app.high_score_btn_image, command=self.show_high_scores, borderwidth=0, bg="lightgray")
+        high_score_button = tk.Button(button_frame, image=app.high_score_btn_image, command=app.play_with_sound(app.switch_to_high_score_page), borderwidth=0, bg="lightgray")
 
         play_button.pack(side=tk.LEFT, padx=40, pady=40)
         instruction_button.pack(side=tk.LEFT, padx=40, pady=40)

@@ -3,11 +3,12 @@ from tkinter import messagebox
 import os
 
 class SaveScoreFrame(tk.Frame):
-    def __init__(self, parent, score, back_to_main_menu, play_with_sound, *args, **kwargs):
+    def __init__(self, parent, score, back_to_main_menu, play_with_sound, refresh_high_scores, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.score = score  # Store the score passed in
         self.back_to_main_menu = back_to_main_menu  # Callback to go back to the main menu
         self.play_with_sound = play_with_sound  # Reference to play_with_sound function from MainApplication
+        self.refresh_high_scores = refresh_high_scores  # Reference to refresh high scores
         self.configure(bg="black")  # Retro background color
         self.build_frame()  # Call the function to build the frame layout
         self.bind_enter_key()  # Bind the Enter key to the save function
@@ -26,14 +27,27 @@ class SaveScoreFrame(tk.Frame):
         container.place(relx=0.5, rely=0.5, anchor="center")  # Center the container in the middle
 
         # Retro-style label for the name entry (blocky font and bright colors)
-        tk.Label(container, text="ENTER NAME (3 CHARACTERS):", font=("Courier", 40, "bold"), fg="lime", bg="black").pack(pady=10)
+        tk.Label(container, text="ENTER NAME (1-3 CHARACTERS):", font=("Courier", 40, "bold"), fg="lime", bg="black").pack(pady=10)
 
         # Create an entry widget for name input (Retro text box style)
         self.name_entry = tk.Entry(container, font=("Courier", 40, "bold"), fg="white", bg="gray", width=10, justify="center")
         self.name_entry.pack(pady=10)
 
+        # Information label about name capitalization
+        tk.Label(container, text="(All names will be saved in CAPS)", font=("Courier", 20, "bold"), fg="orange", bg="black").pack(pady=5)
+
         # Create a button with retro style to save the score
-        save_button = tk.Button(container, text="SAVE", command=self.play_with_sound(self.save_score), font=("Courier", 20, "bold"), fg="yellow", bg="black", activebackground="gray", bd=5, relief="ridge")
+        save_button = tk.Button(
+            container,
+            text="SAVE",
+            command=self.save_score,
+            font=("Courier", 20, "bold"),
+            fg="yellow",
+            bg="black",
+            activebackground="gray",
+            bd=5,
+            relief="ridge"
+        )
         save_button.pack(pady=10)
 
     def save_score_event(self, event):
@@ -51,6 +65,9 @@ class SaveScoreFrame(tk.Frame):
             messagebox.showerror("Invalid Entry", "Name cannot be more than 3 characters. Please re-enter.")
             return
 
+        # Convert the name to uppercase
+        name = name.upper()
+
         # Ensure the directory for saving scores exists
         os.makedirs("Assets/HighScoresList", exist_ok=True)
 
@@ -60,6 +77,9 @@ class SaveScoreFrame(tk.Frame):
 
         # Show a confirmation message once the score is saved
         messagebox.showinfo("Score Saved", "Your score has been saved successfully!")
+
+        # Call the refresh function to update high scores
+        self.refresh_high_scores()
 
         # Call the callback to go back to the main menu
         self.back_to_main_menu()
