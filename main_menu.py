@@ -45,7 +45,8 @@ class MainMenu(tk.Frame):
         # Load GIF and set up animation
         self.gif_frames = [PhotoImage(file="Assets/star.gif", format=f"gif -index {i}") for i in range(self.get_gif_frames("Assets/star.gif"))]
         self.gif_label = tk.Label(self, bg="black")
-        self.gif_label.place(relx=0.5, rely=0.65, anchor="center")
+        self.gif_label.place(relx=0.5, rely=0.68, anchor="center")
+        self.gif_label.place(relx=0.5, rely=0.68, anchor="center")
         self.animate_gif(0)
 
     def get_gif_frames(self, file):
