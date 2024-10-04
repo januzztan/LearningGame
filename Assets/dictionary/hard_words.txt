@@ -27,7 +27,7 @@ Mystical
 Radiant
 Spectacular
 Brilliant
-Silly
+Banana
 Charming
 Happiness
 Joyful
@@ -40,7 +40,7 @@ Exquisite
 Frolic
 Daring
 Marvelous
-Eager
+Octopus
 Cheerful
 Glimmer
 Sparkle
@@ -48,7 +48,7 @@ Radiate
 Bubbly
 Whimsical
 Inventive
-Brisk
+Pencil
 Vibrant
 Exhilarating
 Resilient
