@@ -19,7 +19,7 @@ class MainMenu(tk.Frame):
         # Close button (Using image instead of text)
         close_button = tk.Button(self, image=close_image, command=self.confirm_close, bg="black", borderwidth=0)
         close_button.image = close_image  # Keep a reference to avoid garbage collection
-        close_button.place(x=30, y=33)  # Fixed coordinates to ensure visibility at the top-left corner
+        close_button.place(x=30, y=10)  # Fixed coordinates to ensure visibility at the top-left corner
 
         # Load close prompt sound
         self.close_sound = pygame.mixer.Sound("Assets/Close_promt.mp3")  # Close prompt sound
