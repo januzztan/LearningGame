@@ -26,9 +26,7 @@ class MainApplication:
         self.game_page = GamePage(self, self.show_save_score_page)  # GamePage now ends with save score
         self.high_score_page = HighScoreFrame(self)  # Initialize HighScoreFrame
         self.instruction_page = InstructionPage(self.root, self)
-
-        # Create save score page (initially hidden)
-        self.save_score_page = SaveScoreFrame(self.root, 0, self.back_to_main_menu, self.play_with_sound)  # Pass play_with_sound here too
+        self.save_score_page = None  # Placeholder for SaveScoreFrame
 
         # Bind the Escape key to exit fullscreen
         self.root.bind("<Escape>", self.exit_fullscreen)
