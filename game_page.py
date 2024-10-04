@@ -193,7 +193,7 @@ class GamePage(tk.Frame):
     # Generate a math problem, starts with easy questions, increasing difficulty when score >= 200
     # Range of numbers between 1 to 10 only
     def generate_random_math_problem(self):
-        if self.points >= 50:
+        if self.points >= 200:
             a = random.randint(1, 10)
             b = random.randint(1, 10)
             op = random.choice(['+', '-', 'x', '/'])
@@ -201,7 +201,7 @@ class GamePage(tk.Frame):
                 # Ensure a is a multiple of b for integer division
                 b = random.randint(1, 10)  # Ensure b is at least 1
                 a = b * random.randint(1, 10)  # Ensure a is a multiple of b
-        # Easier questions for scores below 200
+        # Easier questions for scores below 100
         else:
             a = random.randint(1, 10)
             b = random.randint(1, 10)
@@ -223,7 +223,7 @@ class GamePage(tk.Frame):
 
     # Generate a word to type, starts with easy words, increasing difficulty when score >= 200
     def generate_random_word_problem(self):
-        if self.points >= 50:
+        if self.points >= 200:
             word = random.choice(self.hard_word_list)
         else:
             word = random.choice(self.word_list)
