@@ -62,56 +62,79 @@ class GamePage(tk.Frame):
         self.cross_image = PhotoImage(file="Assets/Pictures/cross.png")
         self.tick_image = PhotoImage(file="Assets/Pictures/tick.png")
 
-        # Set up lives display
+        # Configure grid weights for resizing
+        self.grid_rowconfigure(0, weight=0)  # Timer, points, and pause row
+        self.grid_rowconfigure(1, weight=1)  # Question frame row (resizable)
+        self.grid_rowconfigure(2, weight=0)  # Input frame row (fixed)
+        self.grid_rowconfigure(3, weight=0)  # Feedback row (fixed)
+        self.grid_rowconfigure(4, weight=0)  # Lives row
+        self.grid_columnconfigure(0, weight=1)  # Timer column
+        self.grid_columnconfigure(1, weight=1)  # Hearts column
+        self.grid_columnconfigure(2, weight=1)  # Points and pause column
+
+        # Timer Label on the left
+        self.timer_label = tk.Label(self, text=f"Time Left: {self.timer}s", font=("Courier", 24, "bold"), fg="white", bg="black")
+        self.timer_label.grid(row=0, column=0, sticky="nw", padx=(10, 0))
+
+        # Points label and pause button on the right
+        self.points_label = tk.Label(self, text=f"Points: {self.points}", font=("Courier", 24, "bold"), bg="black", fg="white")
+        self.points_label.grid(row=0, column=2, sticky="ne", padx=(0, 10))
+
+        # Pause Button on the right
+        self.pause_button = tk.Button(self, image=self.pause_image, command=app.play_with_sound(self.toggle_pause), bg="black", borderwidth=0)
+        self.pause_button.image = self.pause_image  # Keep a reference to avoid garbage collection
+        self.pause_button.grid(row=0, column=2, sticky="nse", padx=(0, 10))
+
+        # Create a frame for the hearts in the center column
         self.lives_frame = tk.Frame(self, bg="black")
-        self.lives_frame.place(relx=0.5, rely=0.89, anchor="center")
+        self.lives_frame.grid(row=4, column=1, sticky="nsew")  # Lives row in center column
         self.lives_labels = []  # Store heart image labels in list
         for i in range(3):
             label = tk.Label(self.lives_frame, image=self.heart_full_image, bg="black")
             label.pack(side="left", padx=10)
             self.lives_labels.append(label)
 
-        #===================GUI components for the game===================
-        # Question
-        self.label = tk.Label(self, font=("Courier", 80, "bold"), bg="black", fg="white")
-        self.label.place(relx=0.5, rely=0.35, anchor="center")
+        # Create a frame for the question label
+        self.question_frame = tk.Frame(self, bg="black")
+        self.question_frame.grid(row=1, column=0, columnspan=3, sticky="nsew")  # Make it span across columns
+
+        # Question label inside the frame
+        self.label = tk.Label(self.question_frame, font=("Courier", 80, "bold"), bg="black", fg="white")
+        self.label.pack(expand=True)  # Use pack to center the label
+
+        # Configure the question frame to resize
+        self.question_frame.grid_rowconfigure(0, weight=1)  # Allow the question frame to resize
+        self.question_frame.grid_columnconfigure(0, weight=1)  # Center the question label within the frame
 
         # Frame to hold the entry box and submit button side by side
         self.input_frame = tk.Frame(self, bg="black")
-        self.input_frame.place(relx=0.5, rely=0.49, anchor="center")
+        self.input_frame.grid(row=2, column=1, sticky="nsew")  # Center the input frame in the middle column
 
         # Entry box
         self.entry = tk.Entry(self.input_frame, font=("Courier", 30, "bold"), width=25, justify="center")
         self.entry.grid(row=0, column=0, padx=10, ipady=10)
 
-        # Submit button
+        # Submit button beside entry box
         self.submit_button = tk.Button(self.input_frame, text="Submit", command=app.play_with_sound(self.check_answer), font=("Courier", 24, "bold"))
-        self.submit_button.grid(row=0, column=1, padx=20)
+        self.submit_button.grid(row=0, column=1, padx=10)
 
-        # Points
-        self.points_label = tk.Label(self, text=f"Points: {self.points}", font=("Courier", 50, "bold"), bg="black", fg="white")
-        self.points_label.place(relx=0.5, rely=0.05, anchor="center")
-
-        # Frame to hold the cross and tick graphic
+        # Frame to hold the feedback graphics
         self.feedback_frame = tk.Frame(self, bg="black")
-        self.feedback_frame.place(relx=0.5, rely=0.69, anchor="center")
+        self.feedback_frame.grid(row=3, column=1, sticky="nsew")  # Feedback row in center column
 
         # Cross graphic
         self.cross_label = tk.Label(self.feedback_frame, image="", bg="black")
-        self.cross_label.grid(row=0, column=0)
+        self.cross_label.pack(side="left")
 
         # Tick graphic
         self.tick_label = tk.Label(self.feedback_frame, image="", bg="black")
-        self.tick_label.grid(row=0, column=1)
+        self.tick_label.pack(side="left")
 
-        # Pause button
-        self.pause_button = tk.Button(self, image=self.pause_image, command=app.play_with_sound(self.toggle_pause), bg="black", borderwidth=0)
-        self.pause_button.image = self.pause_image  # Keep a reference to avoid garbage collection
-        self.pause_button.place(relx=0.98, rely=0.02, anchor="ne")
+        # Ensure the feedback graphics and hearts are also centered
+        self.feedback_frame.grid_rowconfigure(0, weight=1)
+        self.feedback_frame.grid_columnconfigure(0, weight=1)
 
-        # Timer Label (to display the countdown)
-        self.timer_label = tk.Label(self, text=f"Time Left: {self.timer}s", font=("Courier", 24, "bold"), fg="white", bg="black")
-        self.timer_label.place(x=10, y=10)
+        self.lives_frame.grid_rowconfigure(0, weight=1)
 
     # Bind the Enter key to game actions
     def bind_enter_key(self):

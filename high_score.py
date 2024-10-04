@@ -9,7 +9,10 @@ class HighScoreFrame(tk.Frame):
         
         # Create GUI components
         self.create_widgets()
-    
+
+        # Configure grid to ensure proper resizing
+        self.configure_grid()
+
     def create_widgets(self):
         # Title Label with retro style
         title_label = tk.Label(
@@ -19,23 +22,18 @@ class HighScoreFrame(tk.Frame):
             fg="yellow",
             bg="black"
         )
-        title_label.pack(pady=(30, 10))
+        title_label.grid(row=0, column=0, columnspan=3, pady=(30, 10), sticky="nsew")  # Center title
 
         # Create a frame for the high score entries
-        self.list_frame = tk.Frame(self, bg="black")  # Make this an instance variable
-        self.list_frame.pack(pady=(10, 10), fill=tk.BOTH, expand=True)  # Fill available space
-        
+        self.list_frame = tk.Frame(self, bg="black")
+        self.list_frame.grid(row=1, column=0, columnspan=3, pady=(10, 10), sticky="nsew")  # Fill the space
+
         # Header Labels with retro style
         self.create_header_labels()
 
         # Separator below headers
         separator = tk.Frame(self.list_frame, bg="white", height=2)
         separator.grid(row=1, column=0, columnspan=3, pady=(0, 10), sticky="ew")
-        
-        # Configure weight for proper resizing
-        self.list_frame.grid_columnconfigure(0, weight=1)
-        self.list_frame.grid_columnconfigure(1, weight=2)
-        self.list_frame.grid_columnconfigure(2, weight=1)
         
         # Load and display high scores (Top 5)
         self.display_high_scores()
@@ -52,7 +50,7 @@ class HighScoreFrame(tk.Frame):
             activebackground="darkred",
             activeforeground="white"
         )
-        back_button.pack(pady=30)
+        back_button.grid(row=2, column=0, columnspan=3, pady=30)  # Center button
 
     def create_header_labels(self):
         """Create header labels for the high score list."""
@@ -64,7 +62,7 @@ class HighScoreFrame(tk.Frame):
             bg="black",
             width=10
         )
-        header_rank.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        header_rank.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
         
         header_name = tk.Label(
             self.list_frame,
@@ -74,7 +72,7 @@ class HighScoreFrame(tk.Frame):
             bg="black",
             width=20
         )
-        header_name.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+        header_name.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
         
         header_score = tk.Label(
             self.list_frame,
@@ -84,7 +82,7 @@ class HighScoreFrame(tk.Frame):
             bg="black",
             width=10
         )
-        header_score.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
+        header_score.grid(row=0, column=2, padx=10, pady=5, sticky="nsew")
 
     def display_high_scores(self):
         """
@@ -110,7 +108,7 @@ class HighScoreFrame(tk.Frame):
                 width=10,
                 anchor="center"  # Center the text
             )
-            rank_label.grid(row=idx + 1, column=0, padx=10, pady=5, sticky="ew")
+            rank_label.grid(row=idx + 1, column=0, padx=10, pady=5, sticky="nsew")
         
             name_label = tk.Label(
                 self.list_frame,
@@ -121,7 +119,7 @@ class HighScoreFrame(tk.Frame):
                 width=20,
                 anchor="center"  # Center the text
             )
-            name_label.grid(row=idx + 1, column=1, padx=10, pady=5, sticky="ew")
+            name_label.grid(row=idx + 1, column=1, padx=10, pady=5, sticky="nsew")
         
             score_label = tk.Label(
                 self.list_frame,
@@ -132,7 +130,7 @@ class HighScoreFrame(tk.Frame):
                 width=10,
                 anchor="center"  # Center the text
             )
-            score_label.grid(row=idx + 1, column=2, padx=10, pady=5, sticky="ew")
+            score_label.grid(row=idx + 1, column=2, padx=10, pady=5, sticky="nsew")
 
     def load_high_scores(self):
         """
@@ -160,3 +158,29 @@ class HighScoreFrame(tk.Frame):
             messagebox.showerror("Error", f"An error occurred while loading high scores:\n{e}")
             high_scores = []
         return high_scores
+
+    def configure_grid(self):
+        """Configure the grid layout for resizing."""
+        # Set the weight for rows and columns
+        self.grid_rowconfigure(0, weight=0)  # Title row
+        self.grid_rowconfigure(1, weight=1)  # High score list row
+        self.grid_rowconfigure(2, weight=0)  # Back button row
+
+        # Make the main frame resizeable
+        self.grid_columnconfigure(0, weight=1)  # Rank column
+        self.grid_columnconfigure(1, weight=2)  # Name column
+        self.grid_columnconfigure(2, weight=1)  # Score column
+
+        # Allow list_frame to fill available space
+        self.list_frame.grid_rowconfigure(0, weight=1)  # Header row
+        self.list_frame.grid_rowconfigure(1, weight=1)  # Separator row
+        self.list_frame.grid_rowconfigure(2, weight=1)  # Content rows for scores
+
+        # Configure each row to have equal height and fill space
+        for i in range(1, 6):  # Adjust for 5 high scores
+            self.list_frame.grid_rowconfigure(i, weight=1)  # Give equal weight to each row
+
+        # Configure columns of the list frame for resizing
+        self.list_frame.grid_columnconfigure(0, weight=1)  # Rank column
+        self.list_frame.grid_columnconfigure(1, weight=2)  # Name column
+        self.list_frame.grid_columnconfigure(2, weight=1)  # Score column

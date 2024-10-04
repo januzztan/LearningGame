@@ -1,4 +1,7 @@
+# main_application.py
+
 import tkinter as tk
+from tkinter import messagebox
 import pygame
 from main_menu import MainMenu
 from game_page import GamePage
@@ -13,6 +16,9 @@ class MainApplication:
         self.root.attributes('-fullscreen', True)
         self.root.configure(bg="lightgray")
 
+        # Set a minimum size for the window (width, height)
+        self.root.minsize(800, 600)
+
         # Load images for buttons
         self.load_images()
 
@@ -22,18 +28,15 @@ class MainApplication:
         # Create the main menu page
         self.main_menu_page = MainMenu(self)
 
-        # Initialize pages
+        # Initialize other pages but do not pack them yet
         self.game_page = GamePage(self, self.show_save_score_page)  # GamePage now ends with save score
         self.high_score_page = HighScoreFrame(self)  # Initialize HighScoreFrame
         self.instruction_page = InstructionPage(self.root, self)
         self.save_score_page = None  # Placeholder for SaveScoreFrame
 
         # Bind the Escape key to exit fullscreen
-        self.root.bind("<Escape>", self.exit_fullscreen)\
+        self.root.bind("<Escape>", self.exit_fullscreen)
         
-        # Set a minimum size for the window (width, height)
-        self.root.minsize(800, 600)
-
         # Show the main menu
         self.main_menu_page.pack(fill="both", expand=True)
 
@@ -46,7 +49,7 @@ class MainApplication:
             self.instruction_btn_image = tk.PhotoImage(file="Assets/Pictures/Instruction_btn.png")
             self.high_score_btn_image = tk.PhotoImage(file="Assets/Pictures/HighScore_btn.png")
         except tk.TclError as e:
-            tk.messagebox.showerror("Image Load Error", f"Failed to load images: {e}")
+            messagebox.showerror("Image Load Error", f"Failed to load images: {e}")
             self.root.destroy()
 
     def initialize_sound(self):
@@ -58,7 +61,7 @@ class MainApplication:
             pygame.mixer.music.play(-1)
             self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")
         except pygame.error as e:
-            tk.messagebox.showerror("Sound Load Error", f"Failed to load sound: {e}")
+            messagebox.showerror("Sound Load Error", f"Failed to load sound: {e}")
             self.click_sound = None
 
     def exit_fullscreen(self, event=None):
