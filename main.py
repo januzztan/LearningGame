@@ -9,7 +9,7 @@ class MainApplication:
     def __init__(self, root):
         self.root = root
         self.root.title("Main Page")
-        self.root.attributes('-fullscreen', True)
+        self.root.attributes("-fullscreen", True)
         self.root.configure(bg="lightgray")
 
         # Load images for buttons

@@ -9,3 +9,8 @@ yy 10
 122 10
 ABC 10
 mmm 0
+fuk 70
+hel 70
+sdh 0
+ddd 50
+j 0
