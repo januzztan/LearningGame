@@ -4,6 +4,7 @@ import random
 import pygame
 import tkinter.messagebox as messagebox  # Import the messagebox module
 from PIL import Image, ImageTk
+import os  # For checking file existence
 
 class GamePage(tk.Frame):
     def __init__(self, app, back_to_main_page_callback):
@@ -37,9 +38,12 @@ class GamePage(tk.Frame):
         self.timer = 21
         self.timer_active = False
 
-        # Load click sound
+        # Initialize Pygame mixer
         pygame.mixer.init()
-        self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")
+        try:
+            self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")
+        except pygame.error as e:
+            print(f"Pygame sound error (mouse_click.mp3): {e}")  # Debugging statement
 
         # Load words
         self.word_list = load_words()
@@ -48,56 +52,118 @@ class GamePage(tk.Frame):
         # Store callback to main page
         self.back_to_main_page = back_to_main_page_callback
 
-        # Load pause image
-        self.pause_image = PhotoImage(file="Assets/Pictures/Pause_btn.png")
+        # Load and resize images with error handling
+        # Define desired sizes for images
+        self.pause_size = (60, 60)
+        self.heart_size = (60, 60)
+        self.cross_size = (60, 60)  # Adjust as needed
+        self.tick_size = (60, 60)    # Adjust as needed
 
-        # Load heart images
-        self.heart_full_image = PhotoImage(file="Assets/Pictures/heart_full.png")
-        self.heart_empty_image = PhotoImage(file="Assets/Pictures/heart_empty.png")
+        # Load and resize pause image
+        self.pause_image_original = self.load_and_resize_image("Assets/Pictures/Pause_btn.png", self.pause_size)
 
-        # Load cross and tick images
-        self.cross_image = PhotoImage(file="Assets/Pictures/cross.png")
-        self.tick_image = PhotoImage(file="Assets/Pictures/tick.png")
+        # Load and resize heart images
+        self.heart_full_image_original = self.load_and_resize_image("Assets/Pictures/heart_full.png", self.heart_size)
+        self.heart_empty_image_original = self.load_and_resize_image("Assets/Pictures/heart_empty.png", self.heart_size)
+
+        # Load and resize cross and tick images
+        self.cross_image_original = self.load_and_resize_image("Assets/Pictures/cross.png", self.cross_size)
+        self.tick_image_original = self.load_and_resize_image("Assets/Pictures/tick.png", self.tick_size)
+
+        # Initialize current images
+        self.pause_image = self.pause_image_original
+        self.heart_full_image = self.heart_full_image_original
+        self.heart_empty_image = self.heart_empty_image_original
+        self.cross_image = self.cross_image_original
+        self.tick_image = self.tick_image_original
+
+        # Load game over image (original size, will resize dynamically)
+        try:
+            self.original_gameover_img = Image.open("Assets/Pictures/GameOver.png")
+            self.gameover_size = (400, 300)  # Initial size, will be resized
+            self.img_tk_gameover = ImageTk.PhotoImage(
+                self.original_gameover_img.resize(self.gameover_size, Image.Resampling.LANCZOS)
+            )
+        except FileNotFoundError:
+            print("Game Over image not found: Assets/Pictures/GameOver.png. Using placeholder.")
+            self.original_gameover_img = Image.new('RGBA', (400, 300), (255, 0, 0, 0))
+            self.img_tk_gameover = ImageTk.PhotoImage(self.original_gameover_img)
 
         # Configure grid weights for resizing
-        self.grid_rowconfigure(0, weight=0)  # Timer, points, and pause row
-        self.grid_rowconfigure(1, weight=1)  # Question frame row (resizable)
-        self.grid_rowconfigure(2, weight=1)  # Input frame row (resizable)
+        self.grid_rowconfigure(0, weight=1)  # Timer, points, and pause row
+        self.grid_rowconfigure(1, weight=3)  # Question frame row (resizable)
+        self.grid_rowconfigure(2, weight=2)  # Input frame row (resizable)
         self.grid_rowconfigure(3, weight=1)  # Feedback row (resizable)
-        self.grid_rowconfigure(4, weight=0)  # Lives row
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure(2, weight=1)
+        self.grid_rowconfigure(4, weight=1)  # Lives row
+        self.grid_columnconfigure(0, weight=1, minsize=250)
+        self.grid_columnconfigure(1, weight=1, minsize=250)
+        self.grid_columnconfigure(2, weight=1, minsize=250)
 
         # Timer Label on the left
-        self.timer_label = tk.Label(self, text=f"Time Left: {self.timer}s", font=("Courier", 24, "bold"), fg="white", bg="black")
-        self.timer_label.grid(row=0, column=0, sticky="nw", padx=(10, 0))
+        self.timer_frame= tk.Frame(self, bg="black")
+        self.timer_label = tk.Label(
+            self.timer_frame, 
+            text=f"Time Left: {self.timer}s", 
+            font=("Courier", 24, "bold"), 
+            fg="white", 
+            bg="black"
+        )
+        self.timer_label.pack(expand=True)
+        self.timer_frame.grid(row=0, column=0, sticky="nsw")
 
         # Points label in the centre
-        self.points_label = tk.Label(self, text=f"Points: {self.points}", font=("Courier", 24, "bold"), bg="black", fg="white")
-        self.points_label.grid(row=0, column=1, sticky="nsew", padx=(0, 10))
+        self.point_frame= tk.Frame(self, bg="black")
+        self.points_label = tk.Label(
+            self.point_frame, 
+            text=f"Points: {self.points}", 
+            font=("Courier", 24, "bold"), 
+            bg="black", 
+            fg="white"
+        )
+        self.points_label.pack(fill='both', expand=True)
+        self.point_frame.grid(row=0, column=1, sticky="nsew")
 
         # Pause Button on the right
-        self.pause_button = tk.Button(self, image=self.pause_image, command=app.play_with_sound(self.toggle_pause), bg="black", borderwidth=0)
+        self.button_frame = tk.Frame(self, bg="black")
+        self.pause_button = tk.Button(
+            self.button_frame, 
+            image=self.pause_image, 
+            command=lambda: app.play_with_sound(self.toggle_pause()), 
+            bg="black", 
+            borderwidth=0
+        )
+        self.pause_button.pack(fill='both', expand=True)
         self.pause_button.image = self.pause_image  # Keep a reference to avoid garbage collection
-        self.pause_button.grid(row=0, column=2, sticky="nse", padx=(0, 10))
-
+        self.button_frame.grid(row=0, column=2, sticky="nse")
 
         # Update the layout of hearts (smaller size, centered)
         self.lives_frame = tk.Frame(self, bg="black")
-        self.lives_frame.grid(row=4, column=1, sticky="nsew")  # Lives row in center column
+        self.lives_frame.grid(row=4, column=0, columnspan=3, sticky="ns", pady=(10, 20))  # Lives row in center column with top and bottom padding
         self.lives_labels = []  # Store heart image labels in list
         for i in range(3):
             label = tk.Label(self.lives_frame, image=self.heart_full_image, bg="black")
-            label.pack(side="left", padx=5)  # Reduce padding to better fit smaller hearts
+            label.pack(side="left", padx=5, expand=True, fill='both')  # Space between hearts
             self.lives_labels.append(label)
 
         # Create a frame for the question label, spanning all columns
         self.question_frame = tk.Frame(self, bg="black")
-        self.question_frame.grid(row=1, column=0, columnspan=3, sticky="nsew")  # Span across columns
+        self.question_frame.grid(
+            row=1, 
+            column=0, 
+            columnspan=3, 
+            sticky="nsew", 
+            padx=20, 
+            pady=10
+        )  # Span across columns with padding
 
         # Question label inside the frame (initial smaller font)
-        self.label = tk.Label(self.question_frame, font=("Courier", 45, "bold"), bg="black", fg="white", wraplength=800)  # Make the font smaller
+        self.label = tk.Label(
+            self.question_frame, 
+            font=("Courier", 45, "bold"), 
+            bg="black", 
+            fg="white", 
+            wraplength=800
+        )  # Make the font smaller
         self.label.pack(expand=True, padx=20, pady=20)  # Center the label and add padding
 
         # Configure the question frame to resize
@@ -109,7 +175,14 @@ class GamePage(tk.Frame):
 
         # Frame to hold the entry box and submit button
         self.input_frame = tk.Frame(self, bg="black")
-        self.input_frame.grid(row=2, column=0, columnspan=3, sticky="nsew")  # Span across all columns
+        self.input_frame.grid(
+            row=2, 
+            column=0, 
+            columnspan=3, 
+            sticky="nsew", 
+            padx=20, 
+            pady=(10, 20)
+        )  # Span across all columns with padding
 
         # Ensure the input frame is centered by configuring its weight
         self.input_frame.grid_rowconfigure(0, weight=1)
@@ -120,21 +193,37 @@ class GamePage(tk.Frame):
         self.entry_button_frame.grid(row=0, column=0)
 
         # Entry box (centered in the subframe)
-        self.entry = tk.Entry(self.entry_button_frame, font=("Courier", 30, "bold"), width=25, justify="center")
+        self.entry = tk.Entry(
+            self.entry_button_frame, 
+            font=("Courier", 30, "bold"), 
+            width=25, 
+            justify="center"
+        )
         self.entry.pack(pady=(10, 20))  # Add padding to space it out from the button
 
         # Submit button (centered below the entry box)
-        self.submit_button = tk.Button(self.entry_button_frame, text="Submit", command=app.play_with_sound(self.check_answer), font=("Courier", 24, "bold"))
+        self.submit_button = tk.Button(
+            self.entry_button_frame, 
+            text="Submit", 
+            command=lambda: app.play_with_sound(self.check_answer()), 
+            font=("Courier", 24, "bold")
+        )
         self.submit_button.pack(pady=(0, 10))  # Add padding below the button
 
         # Frame to hold the feedback graphics, spanning all columns
         self.feedback_frame = tk.Frame(self, bg="black")
-        self.feedback_frame.grid(row=3, column=0, columnspan=3, sticky="nsew")  # Span across columns
+        self.feedback_frame.grid(
+            row=3, 
+            column=0, 
+            columnspan=3, 
+            sticky="nsew", 
+            padx=20, 
+            pady=10
+        )  # Span across columns with padding
 
         # Cross graphic
         self.cross_label = tk.Label(self.feedback_frame, image="", bg="black")
-        self.cross_label.pack(side="left", expand=True, fill="both", padx=0)
-
+        self.cross_label.pack(side="left", expand=True, fill="both")
 
         # Ensure the feedback graphics and hearts are also centered
         self.feedback_frame.grid_rowconfigure(0, weight=1)
@@ -142,12 +231,66 @@ class GamePage(tk.Frame):
 
         self.lives_frame.grid_rowconfigure(0, weight=1)
 
-    # Dynamically resize the question label font when the window size changes
-    def resize_text(self, event):        
+    # Instance method to load and resize images
+    def load_and_resize_image(self, path, size):
+        try:
+            img_original = Image.open(path)
+            img_resized = img_original.resize(size, Image.Resampling.LANCZOS)
+            return ImageTk.PhotoImage(img_resized)
+        except FileNotFoundError:
+            print(f"Image file not found: {path}. Using placeholder.")
+            # Create a placeholder image (e.g., a blank image)
+            placeholder = Image.new('RGBA', size, (255, 0, 0, 0))
+            return ImageTk.PhotoImage(placeholder)
+        except Exception as e:
+            print(f"Error loading image {path}: {e}. Using placeholder.")
+            placeholder = Image.new('RGBA', size, (255, 0, 0, 0))
+            return ImageTk.PhotoImage(placeholder)
+
+    # Dynamically resize the question label font and images when the window size changes
+    def resize_text(self, event):
         new_width = event.width
-        font_size = int(new_width / 25)+5  # Adjust the divisor for desired font scaling
+
+        # Ensure the font size doesn't drop below a minimum threshold
+        font_size = max(int(new_width / 25) + 5, 12)  # Adjust 12 to set the minimum font size
         self.label.config(font=("Courier", font_size, "bold"))
 
+        # Resize timer label font, ensure it doesn't drop below a minimum threshold
+        timer_font_size = max(int(new_width / 60), 12)  # Adjust 12 to set the minimum timer font size
+        self.timer_label.config(font=("Courier", timer_font_size, "bold"))
+
+        # Resize points label font
+        points_font_size = max(int(new_width / 55), 12)  # Adjust for points label
+        self.points_label.config(font=("Courier", points_font_size, "bold"))
+
+        # Dynamically resize heart, cross, and tick images based on the new width
+        # Define minimum sizes to prevent them from becoming too small
+        min_heart_size = (70, 70)
+        min_cross_tick_size = (70, 70)
+
+        # Calculate new sizes with minimum constraints
+        new_heart_width = max(int(new_width / 10), min_heart_size[0])
+        new_heart_height = max(int(new_width / 10), min_heart_size[1])
+        heart_size = (new_heart_width, new_heart_height)
+
+        new_cross_width = max(int(new_width / 10), min_cross_tick_size[0])
+        new_cross_height = max(int(new_width / 10), min_cross_tick_size[1])
+        cross_tick_size = (new_cross_width, new_cross_height)
+
+        # Resize and update heart images
+        self.heart_full_image = self.load_and_resize_image("Assets/Pictures/heart_full.png", heart_size)
+        self.heart_empty_image = self.load_and_resize_image("Assets/Pictures/heart_empty.png", heart_size)
+        for i, label in enumerate(self.lives_labels):
+            if i < self.lives:
+                label.config(image=self.heart_full_image)
+                label.image = self.heart_full_image  # Update reference
+            else:
+                label.config(image=self.heart_empty_image)
+                label.image = self.heart_empty_image  # Update reference
+
+        # Resize and update cross/tick images
+        self.cross_image = self.load_and_resize_image("Assets/Pictures/cross.png", cross_tick_size)
+        self.tick_image = self.load_and_resize_image("Assets/Pictures/tick.png", cross_tick_size)
 
     # Bind the Enter key to game actions
     def bind_enter_key(self):
@@ -157,7 +300,7 @@ class GamePage(tk.Frame):
     def unbind_enter_key(self):
         self.app.root.unbind("<Return>")
 
-    #starts game
+    # Starts game
     def start_game(self):
         self.reset_game_state()
         self.ask_question()
@@ -168,10 +311,10 @@ class GamePage(tk.Frame):
         self.points = 0
         self.points_label.config(text=f"Points: {self.points}")
         self.lives = 3  # Reset lives to 3
-        self.timer = 21  # Reset timer to 20 seconds
-        self.pause_button.config(text="Pause")
+        self.timer = 21  # Reset timer to 21 seconds
+        self.pause_button.config(image=self.pause_image)  # Ensure pause button shows pause image
         self.timer_label.config(text=f"Time Left: {self.timer}s")  # Update timer display
-        
+
         # Update heart images to full hearts (since lives are reset to 3)
         self.update_lives_display()
 
@@ -180,13 +323,9 @@ class GamePage(tk.Frame):
             self.overlay_frame.destroy()
 
         # Reset points and other game variables
-        # Removed the second ask_question() here
         self.ask_question()  # Only need to ask the question once after resetting
 
-
-
-
-    #generates new questions
+    # Generates new questions
     def ask_question(self):
         if not self.game_paused:
             self.entry.delete(0, tk.END)
@@ -203,7 +342,7 @@ class GamePage(tk.Frame):
         else:
             print("Game is paused. Cannot ask a question.")  # Debugging statement
 
-    #Round countdown timer, 20 secs per question
+    # Round countdown timer, 21 secs per question
     def countdown_timer(self):
         if not self.game_paused and self.timer > 0 and self.timer_active:
             self.timer -= 1
@@ -237,7 +376,7 @@ class GamePage(tk.Frame):
                 # Ensure a is a multiple of b for integer division
                 b = random.randint(1, 10)  # Ensure b is at least 1
                 a = b * random.randint(1, 10)  # Ensure a is a multiple of b
-        # Easier questions for scores below 100
+        # Easier questions for scores below 200
         else:
             a = random.randint(1, 10)
             b = random.randint(1, 10)
@@ -246,7 +385,7 @@ class GamePage(tk.Frame):
         if op == '+':
             self.correct_answer = a + b
         elif op == '-':
-            if a < b: # Makes sure there are - qns that result in - ve answer
+            if a < b:  # Makes sure there are questions that result in positive answers
                 a, b = b, a
             self.correct_answer = a - b
         elif op == 'x':
@@ -306,23 +445,26 @@ class GamePage(tk.Frame):
         if not self.game_paused:  # Prevent life loss if the game is paused
             self.lives -= 1
             self.update_lives_display()
-            if self.lives <= 0: # Show game over when lives reach 0
+            if self.lives <= 0:  # Show game over when lives reach 0
                 self.show_game_over_overlay()
-            else: # Move on to the next question after 1 second
-                self.after(1000, self.ask_question) 
+            else:  # Move on to the next question after 1 second
+                self.after(1000, self.ask_question)
 
     # Change lives displayed
     def update_lives_display(self):
         for i in range(3):
             if i < self.lives:
                 self.lives_labels[i].config(image=self.heart_full_image)
+                self.lives_labels[i].image = self.heart_full_image  # Update reference
             else:
                 self.lives_labels[i].config(image=self.heart_empty_image)
+                self.lives_labels[i].image = self.heart_empty_image  # Update reference
 
     def show_game_over_overlay(self):
         # Stop the countdown timer if it's still running
-        self.after_cancel(self.timer_callback_id)
-        
+        if hasattr(self, 'timer_callback_id'):
+            self.after_cancel(self.timer_callback_id)
+
         # Pauses game instance
         self.game_paused = True
 
@@ -330,9 +472,13 @@ class GamePage(tk.Frame):
         pygame.mixer.music.pause()
 
         # Play "game over" sound and get the sound length
-        gameover_sound = pygame.mixer.Sound('Assets/SFX/gameover_sfx.mp3')
-        gameover_sound.play()
-        sound_length = gameover_sound.get_length()  # Get the duration of the sound
+        try:
+            gameover_sound = pygame.mixer.Sound('Assets/SFX/gameover_sfx.mp3')
+            gameover_sound.play()
+            sound_length = gameover_sound.get_length()  # Get the duration of the sound
+        except pygame.error as e:
+            print(f"Pygame sound error (gameover_sfx.mp3): {e}")  # Debugging statement
+            sound_length = 3  # Default to 3 seconds if sound fails
 
         # Create a "Game Over" overlay
         self.overlay_frame = tk.Frame(self, bg="black")
@@ -340,10 +486,7 @@ class GamePage(tk.Frame):
         self.overlay_frame.tkraise()
 
         # Load and display the "Game Over" image
-        self.original_img = Image.open("Assets/Pictures/GameOver.png")  # Make sure the image exists
-        self.img_tk = ImageTk.PhotoImage(self.original_img)
-
-        self.game_over_image_label = tk.Label(self.overlay_frame, image=self.img_tk, bg="black")
+        self.game_over_image_label = tk.Label(self.overlay_frame, image=self.img_tk_gameover, bg="black")
         self.game_over_image_label.pack(expand=True)  # Center the image
 
         # Bind the window resizing event to dynamically resize the image
@@ -358,21 +501,23 @@ class GamePage(tk.Frame):
         new_height = event.height
 
         # Maintain the aspect ratio of the image
-        img_aspect_ratio = self.original_img.height / self.original_img.height
+        img_aspect_ratio = self.original_gameover_img.width / self.original_gameover_img.height
         new_aspect_ratio = new_width / new_height
 
         if new_aspect_ratio > img_aspect_ratio:
-            new_width = int(new_height * img_aspect_ratio)
+            resized_width = int(new_height * img_aspect_ratio)
+            resized_height = new_height
         else:
-            new_height = int(new_width / img_aspect_ratio)
+            resized_width = new_width
+            resized_height = int(new_width / img_aspect_ratio)
 
         # Resize the original image to fit the new dimensions
-        resized_img = self.original_img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-        self.img_tk = ImageTk.PhotoImage(resized_img)
+        resized_img = self.original_gameover_img.resize((resized_width, resized_height), Image.Resampling.LANCZOS)
+        self.img_tk_gameover = ImageTk.PhotoImage(resized_img)
 
         # Update the image in the label
-        self.game_over_image_label.config(image=self.img_tk)
-        self.game_over_image_label.image = self.img_tk  # Keep reference to avoid garbage collection
+        self.game_over_image_label.config(image=self.img_tk_gameover)
+        self.game_over_image_label.image = self.img_tk_gameover  # Keep reference to avoid garbage collection
 
     # Moves to save score page
     def redirect_to_save_file(self):
@@ -386,22 +531,28 @@ class GamePage(tk.Frame):
     # Flash red cross with wrong response
     def flash_red_cross(self):
         self.cross_label.config(image=self.cross_image)
+        self.cross_label.image = self.cross_image  # Update reference
         self.after(1000, lambda: self.cross_label.config(image=""))  # Hide after 1 second
 
     # Flash green tick with correct response
     def flash_green_tick(self):
         self.cross_label.config(image=self.tick_image)
+        self.cross_label.image = self.tick_image  # Update reference
         self.after(1000, lambda: self.cross_label.config(image=""))  # Hide after 1 second
 
-    # Play correct and incorrect sound with reponse
+    # Play correct and incorrect sound with response
     def play_sound(self, result):
         try:
             if result == 'correct':
-                pygame.mixer.Sound("Assets/SFX/correct.mp3").play()
+                correct_sound = pygame.mixer.Sound("Assets/SFX/correct.mp3")
+                correct_sound.play()
             elif result == 'incorrect':
-                pygame.mixer.Sound('Assets/SFX/incorrect.mp3').play()
+                incorrect_sound = pygame.mixer.Sound('Assets/SFX/incorrect.mp3')
+                incorrect_sound.play()
         except pygame.error as e:
-            print(f"Pygame sound error: {e}")  # Debugging statement
+            print(f"Pygame sound error ({result}.mp3): {e}")  # Debugging statement
+
+
     
     # Define colors in hex
     WHITE = "#FFFFFF"
