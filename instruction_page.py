@@ -1,45 +1,37 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-import pygame
+
+# instruction_page.py
+
+import tkinter as tk
+from PIL import Image, ImageTk
 
 class InstructionPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        
-        # Initialize pygame mixer for sounds
-        pygame.mixer.init()
-        self.click_sound = pygame.mixer.Sound("Assets/mouse_click.mp3")
-        
-        # Set the background to black
-        self.configure(bg="black")
 
         # Load the images using PIL
-        self.page1_image = ImageTk.PhotoImage(Image.open("Assets/Inst_How2Play.png").resize((1632, 646)))
-        self.page2_image = ImageTk.PhotoImage(Image.open("Assets/Inst_LivesNPoints.png").resize((1632, 646)))
-        self.page3_image = ImageTk.PhotoImage(Image.open("Assets/Inst_Tips2Succeed.png").resize((1632, 646)))
+        self.page1_image = ImageTk.PhotoImage(Image.open("Assets/Pictures/Tutorial_How2Play.png").resize((1632, 646)))
+        self.page2_image = ImageTk.PhotoImage(Image.open("Assets/Pictures/Tutorial_LivesNPoints.png").resize((1632, 646)))
+        self.page3_image = ImageTk.PhotoImage(Image.open("Assets/Pictures/Tutorial_Tips2Succeed.png").resize((1632, 646)))
 
         self.create_widgets()
 
     def create_widgets(self):
         # Page title
-        self.title_label = tk.Label(self, text="How to play?", font=("Courier", 60, "bold"), fg="white", bg="black")
+        self.title_label = tk.Label(self, text="How to play?", font=("PixelOperatorSC-Bold", 70), bg="white")
         self.title_label.pack(pady=20)
 
         # Image display
-        self.image_label = tk.Label(self, image=self.page1_image, bg="black")
-        self.image_label.pack(pady=5)
+        self.image_label = tk.Label(self, image=self.page1_image)
+        self.image_label.pack(pady=20)
 
         # Navigation buttons
-        button_font = ("Courier", 24, "bold")
-        self.how_to_play_button = tk.Button(self, text="How to Play", font=button_font, bg="purple", fg="white", 
-                                            command=lambda: self.play_click_sound_and(self.show_page, 1))
-        self.lives_and_points_button = tk.Button(self, text="Lives and Points", font=button_font, bg="orange", fg="white", 
-                                                 command=lambda: self.play_click_sound_and(self.show_page, 2))
-        self.tips_button = tk.Button(self, text="Tips to Succeed", font=button_font, bg="green", fg="white", 
-                                     command=lambda: self.play_click_sound_and(self.show_page, 3))
-        self.back_button = tk.Button(self, text="Back to Main Menu", font=button_font, bg="blue", fg="white", 
-                                     command=lambda: self.play_click_sound_and(self.controller.back_to_main_menu))
+        self.how_to_play_button = tk.Button(self, text="How to Play", command=lambda: self.show_page(1))
+        self.lives_and_points_button = tk.Button(self, text="Lives and Points", command=lambda: self.show_page(2))
+        self.tips_button = tk.Button(self, text="Tips to Succeed", command=lambda: self.show_page(3))
+        self.back_button = tk.Button(self, text="Back to Main Menu", command=self.controller.back_to_main_menu)
 
         self.how_to_play_button.pack(side="left", padx=20)
         self.lives_and_points_button.pack(side="left", padx=20)
@@ -57,7 +49,3 @@ class InstructionPage(tk.Frame):
             self.title_label.config(text="Tips to Succeed")
             self.image_label.config(image=self.page3_image)
 
-    def play_click_sound_and(self, func, *args):
-        """Play click sound and then execute the function."""
-        self.click_sound.play()  # Play the sound effect
-        func(*args)  # Call the actual function
