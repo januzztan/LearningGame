@@ -31,6 +31,8 @@ class InstructionPage(tk.Frame):
         self.aspect_ratio = self.image_height / self.image_width  # Height / Width
 
         self.current_page = 1  # Track current page
+        self.is_resizing = False  # Track if the window is currently resizing
+        self.last_resize_time = 0  # Track the last resize time
 
         # Create main layout frame
         self.main_frame = tk.Frame(self, bg="black")
@@ -57,7 +59,7 @@ class InstructionPage(tk.Frame):
         self.title_label = tk.Label(self.main_frame, text="How to play?", font=("Courier", 60, "bold"), fg="white", bg="black")
         self.title_label.grid(row=0, column=0, sticky="nsew")
 
-        # Image display frame
+        # Image display
         self.image_label = tk.Label(self.main_frame, image=self.page_images[self.current_page], bg="black")
         self.image_label.grid(row=1, column=0, sticky="nsew")
 
@@ -66,33 +68,41 @@ class InstructionPage(tk.Frame):
         self.button_frame.grid(row=2, column=0, pady=(0,10), sticky="nsew")
         
         # Set grid column weights for button resizing
-        self.button_frame.grid_columnconfigure(0, weight=1)
-        self.button_frame.grid_columnconfigure(1, weight=1)
-        self.button_frame.grid_columnconfigure(2, weight=1)
-        self.button_frame.grid_columnconfigure(3, weight=1)
+        for col in range(4):
+            self.button_frame.grid_columnconfigure(col, weight=1)
 
         # Initial button font
         self.button_font = ("Courier", 24, "bold")
 
-        # Navigation buttons
-        self.how_to_play_button = tk.Button(self.button_frame, text="How to Play", font=self.button_font, bg="purple", fg="white", 
+        # Navigation buttons and their original colors
+        self.button_colors = {
+            1: "purple",
+            2: "orange",
+            3: "green",
+            4: "blue"
+        }
+
+        self.how_to_play_button = tk.Button(self.button_frame, text="How to Play", font=self.button_font, bg=self.button_colors[1], fg="white", 
                                             command=lambda: self.play_click_sound_and(self.show_page, 1))
         self.how_to_play_button.grid(row=0, column=0, sticky="ew", padx=10)
 
-        self.lives_and_points_button = tk.Button(self.button_frame, text="Lives and Points", font=self.button_font, bg="orange", fg="white", 
+        self.lives_and_points_button = tk.Button(self.button_frame, text="Lives and Points", font=self.button_font, bg=self.button_colors[2], fg="white", 
                                                  command=lambda: self.play_click_sound_and(self.show_page, 2))
         self.lives_and_points_button.grid(row=0, column=1, sticky="ew", padx=10)
 
-        self.tips_button = tk.Button(self.button_frame, text="Tips to Succeed", font=self.button_font, bg="green", fg="white", 
+        self.tips_button = tk.Button(self.button_frame, text="Tips to Succeed", font=self.button_font, bg=self.button_colors[3], fg="white", 
                                      command=lambda: self.play_click_sound_and(self.show_page, 3))
         self.tips_button.grid(row=0, column=2, sticky="ew", padx=10)
 
-        self.back_button = tk.Button(self.button_frame, text="Back to Main Menu", font=self.button_font, bg="blue", fg="white", 
+        self.back_button = tk.Button(self.button_frame, text="Back to Main Menu", font=self.button_font, bg=self.button_colors[4], fg="white", 
                                      command=lambda: self.play_click_sound_and(self.controller.back_to_main_menu))
         self.back_button.grid(row=0, column=3, sticky="ew", padx=10)
 
+        self.update_buttons_state()  # Call to disable the initial active button
+
     def show_page(self, page_num):
         self.current_page = page_num
+        self.update_buttons_state()  # Update the button state right after setting the current page
         if page_num == 1:
             self.title_label.config(text="How to play?")
         elif page_num == 2:
@@ -101,14 +111,27 @@ class InstructionPage(tk.Frame):
             self.title_label.config(text="Tips to Succeed")
         self.update_image()
 
+    def update_buttons_state(self):
+        """Updates the buttons to disable the currently active button."""
+        buttons = [
+            self.how_to_play_button,
+            self.lives_and_points_button,
+            self.tips_button
+        ]
+        
+        for i, button in enumerate(buttons):
+            if i + 1 == self.current_page:  # Check if this is the active page
+                button.config(state="disabled", bg="gray")  # Disable and change color
+            else:
+                # Restore original color when re-enabling the button
+                button.config(state="normal", bg=self.button_colors[i + 1])  # Enable and restore color
+
     def update_image(self):
         """Updates the image display with the resized version based on the window size."""
         max_height = self.winfo_height() - self.button_frame.winfo_height() - self.title_label.winfo_height()  # Adjust for buttons and title
         max_width = self.winfo_width() - 50  # Subtract some padding for aesthetics
 
-        if max_width <= 0 or max_height <= 0:
-            return  # Skip resizing if the window size is too small
-
+        # Calculate new dimensions maintaining the aspect ratio
         width_ratio = max_width / self.image_width
         height_ratio = max_height / self.image_height
         scale_factor = min(width_ratio, height_ratio)  # Use the smaller ratio to ensure no clipping
@@ -124,9 +147,18 @@ class InstructionPage(tk.Frame):
 
     def on_resize(self, event=None):
         """Handle window resizing event and update the image and label accordingly."""
+        if self.is_resizing:
+            return  # Ignore if already resizing
+
+        self.is_resizing = True  # Set flag to indicate resizing is happening
+        self.after(10, self.perform_resize)  # Schedule resize after a short delay
+
+    def perform_resize(self):
+        """Actual resizing operations, called after a delay to debounce."""
         self.update_image()
         self.update_label_font()
         self.update_button_font()
+        self.is_resizing = False  # Reset resizing flag
 
     def update_label_font(self):
         """Dynamically adjusts the label font size based on window size."""
@@ -135,7 +167,7 @@ class InstructionPage(tk.Frame):
         self.title_label.config(font=("Courier", new_font_size, "bold"))
 
     def update_button_font(self):
-        """Dynamically adjust the button font size based on window size."""
+        """Dynamically adjust the button font size based on window size.""" 
         current_width = self.winfo_width()
         button_font_size = max(12, min(int(current_width / 60), 24))  # Limit font size between 12 and 24
         new_button_font = ("Courier", button_font_size, "bold")
@@ -147,6 +179,6 @@ class InstructionPage(tk.Frame):
             button.config(font=new_button_font)
 
     def play_click_sound_and(self, func, *args):
-        """Play click sound and then execute the function."""
+        """Play click sound and then execute the function.""" 
         self.click_sound.play()  # Play the sound effect
         func(*args)  # Call the actual function
