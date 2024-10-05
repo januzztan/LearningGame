@@ -48,7 +48,7 @@ class MainMenu(tk.Frame):
         self.exit_button = tk.Button(
             self,
             image=self.exit_btn_image,
-            command=self.confirm_close,
+            command=self.app.play_with_sound(self.confirm_close),
             bg="black",
             borderwidth=0
         )
@@ -60,7 +60,7 @@ class MainMenu(tk.Frame):
         self.music_toggle_button = tk.Button(
             self,
             image=self.volume_play_image,
-            command=self.toggle_music,
+            command=self.app.play_with_sound(self.toggle_music),
             borderwidth=0,
             bg="black"
         )
@@ -85,21 +85,21 @@ class MainMenu(tk.Frame):
         self.play_button = tk.Button(
             self.button_frame,
             image=self.app.play_btn_image,
-            command=lambda: app.play_with_sound(app.switch_to_game_page()),
+            command=self.app.play_with_sound(lambda:app.switch_to_game_page()),
             borderwidth=0,
             bg="lightgray"
         )
         self.instruction_button = tk.Button(
             self.button_frame,
             image=self.app.instruction_btn_image,
-            command=lambda: app.play_with_sound(app.switch_to_instruction_page()),
+            command=self.app.play_with_sound(lambda:app.switch_to_instruction_page()),
             borderwidth=0,
             bg="lightgray"
         )
         self.high_score_button = tk.Button(
             self.button_frame,
             image=self.app.high_score_btn_image,
-            command=lambda: app.play_with_sound(app.switch_to_high_score_page()),
+            command=self.app.play_with_sound(lambda:app.switch_to_high_score_page()),
             borderwidth=0,
             bg="lightgray"
         )

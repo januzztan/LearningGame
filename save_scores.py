@@ -96,7 +96,7 @@ class SaveScoreFrame(tk.Frame):
         self.save_button = tk.Button(
             container,
             text="SAVE",
-            command=self.save_score,
+            command=self.play_with_sound(self.save_score),
             font=("Courier", 16, "bold"),
             fg="yellow",
             bg="black",

@@ -128,7 +128,7 @@ class GamePage(tk.Frame):
         self.pause_button = tk.Button(
             self.button_frame, 
             image=self.pause_image, 
-            command=lambda: app.play_with_sound(self.toggle_pause()), 
+            command= self.app.play_with_sound(lambda:self.toggle_pause()), 
             bg="black", 
             borderwidth=0
         )
@@ -205,7 +205,7 @@ class GamePage(tk.Frame):
         self.submit_button = tk.Button(
             self.entry_button_frame, 
             text="Submit", 
-            command=lambda: app.play_with_sound(self.check_answer()), 
+            command=self.app.play_with_sound(lambda: self.check_answer()), 
             font=("Courier", 24, "bold")
         )
         self.submit_button.pack(pady=(0, 10))  # Add padding below the button

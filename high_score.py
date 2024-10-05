@@ -42,7 +42,7 @@ class HighScoreFrame(tk.Frame):
         back_button = tk.Button(
             self,
             text="Back to Main Menu",
-            command=self.app.back_to_main_menu,
+            command=self.app.play_with_sound(self.app.back_to_main_menu),
             font=("Press Start 2P", 24),  # Increased font size for button
             bg="red",
             fg="white",
