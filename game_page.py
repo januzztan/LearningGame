@@ -108,7 +108,7 @@ class GamePage(tk.Frame):
             fg="white", 
             bg="black"
         )
-        self.timer_label.pack(expand=True)
+        self.timer_label.pack(expand=True, padx=(10,0))
         self.timer_frame.grid(row=0, column=0, sticky="nsw")
 
         # Points label in the centre
@@ -134,7 +134,7 @@ class GamePage(tk.Frame):
         )
         self.pause_button.pack(fill='both', expand=True)
         self.pause_button.image = self.pause_image  # Keep a reference to avoid garbage collection
-        self.button_frame.grid(row=0, column=2, sticky="nse")
+        self.button_frame.grid(row=0, column=2, sticky="nse", padx=(0,10))
 
         # Update the layout of hearts (smaller size, centered)
         self.lives_frame = tk.Frame(self, bg="black")
@@ -256,11 +256,11 @@ class GamePage(tk.Frame):
         self.label.config(font=("Courier", font_size, "bold"))
 
         # Resize timer label font, ensure it doesn't drop below a minimum threshold
-        timer_font_size = max(int(new_width / 60), 12)  # Adjust 12 to set the minimum timer font size
+        timer_font_size = max(int(new_width / 60)+2, 12)  # Adjust 12 to set the minimum timer font size
         self.timer_label.config(font=("Courier", timer_font_size, "bold"))
 
         # Resize points label font
-        points_font_size = max(int(new_width / 55), 12)  # Adjust for points label
+        points_font_size = max(int(new_width / 55)+2, 12)  # Adjust for points label
         self.points_label.config(font=("Courier", points_font_size, "bold"))
 
         # Dynamically resize heart, cross, and tick images based on the new width
