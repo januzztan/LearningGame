@@ -7,10 +7,6 @@ class InstructionPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         
-        # Initialize pygame mixer for sounds
-        pygame.mixer.init()
-        self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")
-        
         # Set the background to black
         self.configure(bg="black")
         
@@ -83,19 +79,19 @@ class InstructionPage(tk.Frame):
         }
 
         self.how_to_play_button = tk.Button(self.button_frame, text="How to Play", font=self.button_font, bg=self.button_colors[1], fg="white", 
-                                            command=lambda: self.play_click_sound_and(self.show_page, 1))
+                                            command=self.controller.play_with_sound(lambda: self.show_page(1)))
         self.how_to_play_button.grid(row=0, column=0, sticky="ew", padx=10)
 
         self.lives_and_points_button = tk.Button(self.button_frame, text="Lives and Points", font=self.button_font, bg=self.button_colors[2], fg="white", 
-                                                 command=lambda: self.play_click_sound_and(self.show_page, 2))
+                                                 command=self.controller.play_with_sound(lambda: self.show_page(2)))
         self.lives_and_points_button.grid(row=0, column=1, sticky="ew", padx=10)
 
         self.tips_button = tk.Button(self.button_frame, text="Tips to Succeed", font=self.button_font, bg=self.button_colors[3], fg="white", 
-                                     command=lambda: self.play_click_sound_and(self.show_page, 3))
+                                     command=self.controller.play_with_sound(lambda: self.show_page(3)))
         self.tips_button.grid(row=0, column=2, sticky="ew", padx=10)
 
         self.back_button = tk.Button(self.button_frame, text="Back to Main Menu", font=self.button_font, bg=self.button_colors[4], fg="white", 
-                                     command=lambda: self.play_click_sound_and(self.controller.back_to_main_menu))
+                                     command=self.controller.play_with_sound(lambda: self.controller.back_to_main_menu()))
         self.back_button.grid(row=0, column=3, sticky="ew", padx=10)
 
         self.update_buttons_state()  # Call to disable the initial active button
@@ -177,8 +173,3 @@ class InstructionPage(tk.Frame):
     
         for button in buttons:
             button.config(font=new_button_font)
-
-    def play_click_sound_and(self, func, *args):
-        """Play click sound and then execute the function.""" 
-        self.click_sound.play()  # Play the sound effect
-        func(*args)  # Call the actual function
