@@ -48,6 +48,16 @@ class SaveScoreFrame(tk.Frame):
         container.grid_columnconfigure(1, weight=1)
         container.grid_columnconfigure(2, weight=1)
 
+        # Display score at the top of the window
+        self.score_label = tk.Label(
+            self,
+            text=f"Score: {self.score}",
+            font=("Courier", 28, "bold"),
+            fg="white",
+            bg="black"
+        )
+        self.score_label.grid(row=0, column=1, pady=(10, 10), sticky="n")
+
         # Retro-style label for the name entry
         self.name_label = tk.Label(
             container,
@@ -119,12 +129,14 @@ class SaveScoreFrame(tk.Frame):
         scale = min(scale, 2.0)
 
         # Update font sizes
+        score_label_font = ("Courier", int(28 * scale), "bold")
         name_label_font = ("Courier", int(24 * scale), "bold")
         entry_font = ("Courier", int(24 * scale), "bold")
         info_label_font = ("Courier", int(14 * scale), "bold")
         button_font = ("Courier", int(16 * scale), "bold")
 
         # Update fonts
+        self.score_label.config(font=score_label_font)
         self.name_label.config(font=name_label_font)
         self.name_entry.config(font=entry_font)
         self.info_label.config(font=info_label_font)
