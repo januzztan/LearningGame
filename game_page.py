@@ -1,15 +1,16 @@
 import tkinter as tk
-from tkinter import PhotoImage
 import random
 import pygame
 import tkinter.messagebox as messagebox  # Import the messagebox module
 from PIL import Image, ImageTk
-import os  # For checking file existence
 
 class GamePage(tk.Frame):
+    """ GamePage is a class that defines the main game interface and functionality for a word and math-based game using the tkinter framework."""
     def __init__(self, app, back_to_main_page_callback):
-        # Load words
+
+        # Load dictionary of words from txt files
         def load_words():
+            """ Reads normal words used in game from words.txt. Assigns words into list, word_list."""
             word_list = []
             try:
                 with open("Assets/dictionary/words.txt", "r") as f:
@@ -19,6 +20,7 @@ class GamePage(tk.Frame):
             return word_list
 
         def load_hard_words():
+            """ Reads hard words used in game from hard_words.txt. Assigns words into list, word_list."""
             word_list = []
             try:
                 with open("Assets/dictionary/hard_words.txt", "r") as f:
@@ -45,7 +47,7 @@ class GamePage(tk.Frame):
         except pygame.error as e:
             print(f"Pygame sound error (mouse_click.mp3): {e}")  # Debugging statement
 
-        # Load words
+        # Assign variables from Load words
         self.word_list = load_words()
         self.hard_word_list = load_hard_words()
 
@@ -233,6 +235,7 @@ class GamePage(tk.Frame):
 
     # Instance method to load and resize images
     def load_and_resize_image(self, path, size):
+        """ Instance method to load and resize images."""
         try:
             img_original = Image.open(path)
             img_resized = img_original.resize(size, Image.Resampling.LANCZOS)
@@ -247,8 +250,9 @@ class GamePage(tk.Frame):
             placeholder = Image.new('RGBA', size, (255, 0, 0, 0))
             return ImageTk.PhotoImage(placeholder)
 
-    # Dynamically resize the question label font and images when the window size changes
+    # Dynamically resize the label fonts and images when the window size changes
     def resize_text(self, event):
+        """ Dynamically resize the label fonts and images when the window size changes."""
         new_width = event.width
 
         # Ensure the font size doesn't drop below a minimum threshold
@@ -294,18 +298,23 @@ class GamePage(tk.Frame):
 
     # Bind the Enter key to game actions
     def bind_enter_key(self):
+        """ Bind the Enter key to game actions."""
         self.app.root.bind("<Return>", lambda event: self.check_answer())
 
     # Unbind the Enter key when leaving the game
     def unbind_enter_key(self):
+        """ Unbind the Enter key when leaving the game."""
         self.app.root.unbind("<Return>")
 
     # Starts game
     def start_game(self):
+        """ Starts game instance."""
         self.reset_game_state()
         self.ask_question()
 
+    #resets game / initialize default game variables
     def reset_game_state(self):
+        """ Initialize default variables used at the start of the game and calls functions to display questions and lives."""
         self.game_paused = False
         self.overlay_displayed = False
         self.points = 0
@@ -327,6 +336,7 @@ class GamePage(tk.Frame):
 
     # Generates new questions
     def ask_question(self):
+        """ Generates new questions."""
         if not self.game_paused:
             self.entry.delete(0, tk.END)
             self.reset_timer()
@@ -344,6 +354,7 @@ class GamePage(tk.Frame):
 
     # Round countdown timer, 21 secs per question
     def countdown_timer(self):
+        """Round countdown timer, 21 secs per question"""
         if not self.game_paused and self.timer > 0 and self.timer_active:
             self.timer -= 1
             self.timer_label.config(text=f"Time Left: {self.timer}s")
@@ -355,6 +366,7 @@ class GamePage(tk.Frame):
 
     # Resets the timer and restarts the countdown for the next question
     def reset_timer(self):
+        """ Resets the timer and restarts the countdown for the next question."""
         # Cancel the previous timer if it exists to prevent overlapping timers
         if hasattr(self, 'timer_callback_id'):
             self.after_cancel(self.timer_callback_id)  # Cancel previous timer callback
@@ -368,6 +380,7 @@ class GamePage(tk.Frame):
     # Generate a math problem, starts with easy questions, increasing difficulty when score >= 200
     # Range of numbers between 1 to 10 only
     def generate_random_math_problem(self):
+        """ Generates a math problem."""
         if self.points >= 200:
             a = random.randint(1, 10)
             b = random.randint(1, 10)
@@ -398,6 +411,7 @@ class GamePage(tk.Frame):
 
     # Generate a word to type, starts with easy words, increasing difficulty when score >= 200
     def generate_random_word_problem(self):
+        """ Genereates a word problem."""
         if self.points >= 200:
             word = random.choice(self.hard_word_list)
         else:
@@ -408,6 +422,7 @@ class GamePage(tk.Frame):
 
     # Check response from player
     def check_answer(self):
+        """ Check response from player."""
         if not self.game_paused:
             user_input = self.entry.get()
             if self.question_type == 'math':
@@ -429,6 +444,7 @@ class GamePage(tk.Frame):
 
     # Correct response
     def correct_response(self):
+        """ Results of correct response."""
         self.play_sound('correct')
         self.points += 10
         self.points_label.config(text=f"Points: {self.points}")
@@ -437,11 +453,13 @@ class GamePage(tk.Frame):
 
     # Wrong response
     def incorrect_response(self):
+        """ Results of wrong response."""
         self.play_sound('incorrect')
         self.flash_red_cross()
 
     # Lose life
     def lose_life(self):
+        """ Lose life. Updates hearts displayed on screen. Calls game over if no lives left."""
         if not self.game_paused:  # Prevent life loss if the game is paused
             self.lives -= 1
             self.update_lives_display()
@@ -452,6 +470,7 @@ class GamePage(tk.Frame):
 
     # Change lives displayed
     def update_lives_display(self):
+        """ Updates hearts displayed on screen."""
         for i in range(3):
             if i < self.lives:
                 self.lives_labels[i].config(image=self.heart_full_image)
@@ -461,6 +480,7 @@ class GamePage(tk.Frame):
                 self.lives_labels[i].image = self.heart_empty_image  # Update reference
 
     def show_game_over_overlay(self):
+        """ Game over screen. Creates overlay over game page."""
         # Stop the countdown timer if it's still running
         if hasattr(self, 'timer_callback_id'):
             self.after_cancel(self.timer_callback_id)
@@ -496,6 +516,7 @@ class GamePage(tk.Frame):
         self.after(int(sound_length * 1000), self.redirect_to_save_file)  # Wait the length of the gameover sound
 
     def resize_game_over_image(self, event):
+        """ Resizes game over page to be responsive"""
         # Get the current width and height of the overlay
         new_width = event.width
         new_height = event.height
@@ -521,6 +542,7 @@ class GamePage(tk.Frame):
 
     # Moves to save score page
     def redirect_to_save_file(self):
+        """ Displays save score screen to prompt player to save  score into HighScoreList.txt"""
         # Resume the global background music
         self.unbind_enter_key()
         pygame.mixer.music.unpause()  # Resume the paused background music
@@ -530,18 +552,21 @@ class GamePage(tk.Frame):
 
     # Flash red cross with wrong response
     def flash_red_cross(self):
+        """ Flash red cross with wrong response."""
         self.cross_label.config(image=self.cross_image)
         self.cross_label.image = self.cross_image  # Update reference
         self.after(1000, lambda: self.cross_label.config(image=""))  # Hide after 1 second
 
     # Flash green tick with correct response
     def flash_green_tick(self):
+        """ Flash green tick with correct response."""
         self.cross_label.config(image=self.tick_image)
         self.cross_label.image = self.tick_image  # Update reference
         self.after(1000, lambda: self.cross_label.config(image=""))  # Hide after 1 second
 
     # Play correct and incorrect sound with response
     def play_sound(self, result):
+        """ Plays correct and incorrect sound with corresponsing response."""
         try:
             if result == 'correct':
                 correct_sound = pygame.mixer.Sound("Assets/SFX/correct.mp3")
@@ -551,8 +576,6 @@ class GamePage(tk.Frame):
                 incorrect_sound.play()
         except pygame.error as e:
             print(f"Pygame sound error ({result}.mp3): {e}")  # Debugging statement
-
-
     
     # Define colors in hex
     WHITE = "#FFFFFF"
