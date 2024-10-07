@@ -38,12 +38,6 @@ class GamePage(tk.Frame):
         self.timer = 21
         self.timer_active = False
 
-        # Initialize Pygame mixer
-        pygame.mixer.init()
-        try:
-            self.click_sound = pygame.mixer.Sound("Assets/SFX/mouse_click.mp3")
-        except pygame.error as e:
-            print(f"Pygame sound error (mouse_click.mp3): {e}")  # Debugging statement
 
         # Load words
         self.word_list = load_words()
@@ -52,23 +46,17 @@ class GamePage(tk.Frame):
         # Store callback to main page
         self.back_to_main_page = back_to_main_page_callback
 
-        # Load and resize images with error handling
-        # Define desired sizes for images
-        self.pause_size = (60, 60)
-        self.heart_size = (60, 60)
-        self.cross_size = (60, 60)  # Adjust as needed
-        self.tick_size = (60, 60)    # Adjust as needed
 
         # Load and resize pause image
-        self.pause_image_original = self.load_and_resize_image("Assets/Pictures/Pause_btn.png", self.pause_size)
+        self.pause_image_original = self.load_and_resize_image("Assets/Pictures/Pause_btn.png", (60, 60))
 
         # Load and resize heart images
-        self.heart_full_image_original = self.load_and_resize_image("Assets/Pictures/heart_full.png", self.heart_size)
-        self.heart_empty_image_original = self.load_and_resize_image("Assets/Pictures/heart_empty.png", self.heart_size)
+        self.heart_full_image_original = self.load_and_resize_image("Assets/Pictures/heart_full.png", (60, 60))
+        self.heart_empty_image_original = self.load_and_resize_image("Assets/Pictures/heart_empty.png", (60, 60))
 
         # Load and resize cross and tick images
-        self.cross_image_original = self.load_and_resize_image("Assets/Pictures/cross.png", self.cross_size)
-        self.tick_image_original = self.load_and_resize_image("Assets/Pictures/tick.png", self.tick_size)
+        self.cross_image_original = self.load_and_resize_image("Assets/Pictures/cross.png", (60, 60))
+        self.tick_image_original = self.load_and_resize_image("Assets/Pictures/tick.png", (60, 60))
 
         # Initialize current images
         self.pause_image = self.pause_image_original

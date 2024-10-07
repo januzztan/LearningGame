@@ -11,9 +11,6 @@ class MainMenu(tk.Frame):
         # Initialize pygame mixer
         pygame.mixer.init()
 
-        # Set a minimum size for the window (width, height)
-        self.app.root.minsize(800, 600)
-
         # Split the screen into top (title) and bottom (GIF + buttons)
         self.top_frame = tk.Frame(self, bg="black")
         self.bottom_frame = tk.Frame(self, bg="black")

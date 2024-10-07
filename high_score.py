@@ -54,32 +54,16 @@ class HighScoreFrame(tk.Frame):
 
     def create_header_labels(self):
         """Create header labels for the high score list."""
-        header_rank = tk.Label(
-            self.list_frame,
-            text="Rank",
-            font=("Press Start 2P", 36, "bold"),
-            fg="yellow",
-            bg="black"
-        )
-        header_rank.grid(row=0, column=0, sticky="nsew")
-        
-        header_name = tk.Label(
-            self.list_frame,
-            text="Name",
-            font=("Press Start 2P", 36, "bold"),
-            fg="yellow",
-            bg="black"
-        )
-        header_name.grid(row=0, column=1, sticky="nsew")
-        
-        header_score = tk.Label(
-            self.list_frame,
-            text="Score",
-            font=("Press Start 2P", 36, "bold"),
-            fg="yellow",
-            bg="black"
-        )
-        header_score.grid(row=0, column=2, sticky="nsew")
+        header_labels = [("Rank", 0), ("Name", 1), ("Score", 2)]
+        for text, col in header_labels:
+            label = tk.Label(
+                self.list_frame,
+                text=text,
+                font=("Press Start 2P", 36, "bold"),
+                fg="yellow",
+                bg="black"
+            )
+            label.grid(row=0, column=col, sticky="nsew")
 
     def display_high_scores(self):
         """
@@ -146,11 +130,9 @@ class HighScoreFrame(tk.Frame):
             # Sort high scores in descending order
             high_scores.sort(key=lambda x: x[1], reverse=True)
         except FileNotFoundError:
-            # If file doesn't exist, return an empty list
-            high_scores = []
+            messagebox.showinfo("File Not Found", "No saved scores found. Please play the game to generate high scores.")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while loading high scores:\n{e}")
-            high_scores = []
         return high_scores
 
     def configure_grid(self):
@@ -178,3 +160,4 @@ class HighScoreFrame(tk.Frame):
         self.list_frame.grid_columnconfigure(0, weight=1)  # Rank column
         self.list_frame.grid_columnconfigure(1, weight=1)  # Name column
         self.list_frame.grid_columnconfigure(2, weight=1)  # Score column
+
